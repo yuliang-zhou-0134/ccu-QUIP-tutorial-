@@ -1,5 +1,5 @@
 # THLee-LAB-machine-learning
 這是CCU THLee實驗室所研發的只用能量機器學習之檔案
-目前有Si與FeSe的範本
+目前有Si與FeSe的範本，Si還未上傳.xyz，FeSe已經上傳了之前做4*4*2超胞的xyz檔
 由於計算FeSe我有優化版本，故Si版本目前只打算放入MACE之操作細節與跑分子動力學之內容，目前FeSe還沒有跑過分子動力學
 注意，需要注意程式內部檔案名稱是否一致，我沒有確認檔案名稱
