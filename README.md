@@ -1,4 +1,4 @@
 # THLee-LAB-machine-learning
 這是CCU THLee實驗室所研發的只用能量機器學習之檔案
 目前有Si與FeSe的範本
-由於計算FeSe我有優化版本，故Si版本目前只打算放入MACE之操作細節
+由於計算FeSe我有優化版本，故Si版本目前只打算放入MACE之操作細節與跑分子動力學之內容，目前FeSe還沒有跑過分子動力學
