@@ -1,0 +1,25 @@
+!python3 -m mace.cli.run_train \
+    --name="Si_MACE_only_energy_r_max5_TRUE_BLIND" \
+    --foundation_model="mace_mp.model" \
+    --train_file="train_smart.xyz" \
+    --valid_file="test_smart.xyz" \
+    --E0s="average" \
+    --batch_size=10 \
+    --max_num_epochs=200 \
+    --start_swa=150 \
+    --scheduler_patience=5 \
+    --patience=15 \
+    --device=cuda \
+    --r_max=5.0 \
+    --default_dtype="float64" \
+    --forces_weight=0.0 \
+    --energy_weight=10.0 \
+    --virials_weight=0.0 \
+    --swa_forces_weight=0.0 \
+    --swa_energy_weight=10.0 \
+    --swa_virials_weight=0.0 \
+    --energy_key="energy" \
+    --forces_key="forces" \
+    --virials_key="virials" \
+    --seed=123\
+    --save_cpu
