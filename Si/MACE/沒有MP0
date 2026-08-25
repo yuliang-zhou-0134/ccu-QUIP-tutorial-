@@ -1,0 +1,24 @@
+# fast train
+!python3 -m mace.cli.run_train \
+    --name="Si_MACE_Fast_FineTune" \
+    --foundation_model="mace_mp_f32.model" \
+    --train_file="train_smart.xyz" \
+    --valid_file="test_smart.xyz" \
+    --E0s="average" \
+    --batch_size=10 \
+    --max_num_epochs=100 \
+    --start_swa=80 \
+    --scheduler_patience=5 \
+    --patience=20 \
+    --device=cuda \
+    --default_dtype="float32" \
+    --forces_weight=0.0 \
+    --energy_weight=10.0 \
+    --virials_weight=0.0 \
+    --swa_forces_weight=0.0 \
+    --swa_energy_weight=100.0 \
+    --swa_virials_weight=0.0 \
+    --energy_key="energy" \
+    --forces_key="forces" \
+    --virials_key="virials" \
+    --seed=123
