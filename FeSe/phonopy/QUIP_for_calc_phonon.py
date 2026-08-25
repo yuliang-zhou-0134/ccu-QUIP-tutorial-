@@ -120,8 +120,8 @@ phonon.symmetrize_force_constants()
    
     
     # =========== [請在這裡加入存檔指令] ===========
-#    print("Saving phonopy parameters to yaml...")
-#    phonon.save(f"phonopy_params_N{N}44_QUIP_only_energy_final_try.yaml")
-#    print(f"Saved: phonopy_params_N{N}44_QUIP_only_energy_final_try.yaml")
+print("Saving phonopy parameters to yaml...")
+phonon.save(f"phonopy_params_N{N}44_QUIP_only_energy_final_try.yaml")
+print(f"Saved: phonopy_params_N{N}44_QUIP_only_energy_final_try.yaml")
     # ============================================
 
