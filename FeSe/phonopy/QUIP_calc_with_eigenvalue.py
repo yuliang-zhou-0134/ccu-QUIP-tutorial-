@@ -3,11 +3,10 @@ import matplotlib.pyplot as plt
 from ase import Atoms
 from ase.build import bulk
 from ase.optimize import BFGS
-#from gpaw.mpi import world
 from phonopy import Phonopy
 from phonopy.structure.atoms import PhonopyAtoms
 from quippy.potential import Potential
-from ase.io import read  # <--- 新增讀取功能
+from ase.io import read  
 from ase.constraints import FixAtoms, FixCartesian
 
 
@@ -17,9 +16,6 @@ from ase.constraints import FixAtoms, FixCartesian
 xml_filename = "GAP_sigma_0.0005_atom_sigma_0.46.xml "
 N = 4  # Supercell 大小
 
-#def parprint(*args, **kwargs):
-#    if world.rank == 0:
-#        print(*args, **kwargs)
 
 # ==========================================
 # 1. 結構設定 (固定晶格常數)
@@ -115,7 +111,6 @@ for i, sc in enumerate(supercells):
 # ==========================================
 # 3.save
 # ==========================================
-#if world.rank == 0:
 print("=== Step 3: Plotting (Manual Interpolation) ===")
 phonon.forces = forces_set
 phonon.produce_force_constants()
