@@ -4,3 +4,4 @@ QUIP_for_calc_phonon.py是用來計算聲子(沒有eigenvector，存取eigenvect
 active_learning.py用來生成需要補強的沿eigenvector位移之結構
 compare.py是將DFT結果與ML結果比較，未來會把DFT換成實驗結果
 for_calc_some_use_thermal_properties.py這是用來計算free energy,DOS,heat capacity
+phonopy_disp.yaml這是之前用VASP計算的DFT之ground truth
