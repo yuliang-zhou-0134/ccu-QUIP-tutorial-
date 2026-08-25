@@ -1,4 +1,4 @@
-這裡是說明QUIP如何去進行訓練，我通常直接在終端機上執行指令，目前會視情況使用3種描述符(distance_2b,angle_3b,SOAP)
+這裡是說明QUIP如何去進行訓練，我通常直接在終端機上執行指令(請看"QUIP指令")，目前會視情況使用3種描述符(distance_2b,angle_3b,SOAP)
 範例xyz energy_only_dataset.xyz(FeSe 4*4*2超胞)
 重要參數筆記
 n_sparse設定最好小於數據數*每筆原子數*0.1，以避免過擬合，這個參數是用來告訴QUIP能用多少的數據來訓練，我的理解是每個原子都可以當成一個可以選擇的數據點；n_sparse需求量:distance_2b<angle_3b<SOAP，distance_2b大約用70內就夠了，angle_3b大約200左右，SOAP可能需要700以上，越多數據點所需的計算資源越多
