@@ -1,0 +1,11 @@
+mpirun --bind-to numa -np 8 gap_fit \
+ energy_parameter_name=energy \
+ force_parameter_name=forces \
+ stress_parameter_name=virial \
+ do_copy_at_file=F \
+ sparse_separate_file=T \
+ gp_file=GAP_FeSe.xml \
+ at_file=energy_only_dataset.xyz \
+ default_sigma={0.0005 0.0 0.0 0.0} \
+ e0="{Fe:-2.71274379:Se:-0.59645019}" \
+ gap='{distance_2b cutoff=5.0 delta=1.0 covariance_type=ard_se theta_uniform=0.29 sparse_method=cur_points add_species=T n_sparse=70 : soap cutoff=3.5 l_max=8 n_max=6 atom_sigma=0.48 n_sparse=700 covariance_type=dot_product sparse_method=cur_points zeta=4 add_species=T delta=0.5 : angle_3b cutoff=3.5 delta=0.7 covariance_type=ard_se theta_fac=0.7  sparse_method=cur_points add_species=T n_sparse=200}' 
