@@ -1,7 +1,5 @@
 import numpy as np
 from ase.io import read  # <--- 新增讀取功能
-#from gpaw import GPAW, PW,MethfesselPaxton
-#from gpaw.mpi import world
 from phonopy import Phonopy
 from phonopy.structure.atoms import PhonopyAtoms
 from ase import Atoms
@@ -17,15 +15,12 @@ from ase.constraints import FixAtoms, FixCartesian
 N = 4
 xml_filename = "GAP_final_try_4.xml "
 
-# --- 輔助函式 ---
-#def parprint(*args, **kwargs):
-#    if world.rank == 0:
-#        print(*args, **kwargs)
+
 
 # ==========================================
 # 1. 讀取結構 (取代原本的 Step 1 Optimization)
 # ==========================================
-#parprint("=== Step 1: Loading Relaxed FeSe Structure ===")
+print("=== Step 1: Loading Relaxed FeSe Structure ===")
 
 # 直接讀取你已經優化好的 xyz 檔
 # 務必確認你的 xyz 檔名正確
@@ -80,7 +75,7 @@ print(f"Relaxed Lattice:\n{atoms.get_cell()}")
 # ==========================================
 # 2. 設定 Phonopy 與 Supercell
 # ==========================================
-#parprint(f"=== Step 2: Phonopy Setup (N={N}) ===")
+print(f"=== Step 2: Phonopy Setup (N={N}) ===")
 
 unitcell = PhonopyAtoms(symbols=atoms.get_chemical_symbols(),
                         cell=atoms.get_cell(),
@@ -118,8 +113,7 @@ for i, sc in enumerate(supercells):
 # ==========================================
 # 3.save
 # ==========================================
-#if world.rank == 0:
-#    print("=== Step 3: Plotting (Manual Interpolation) ===")
+
 phonon.forces = forces_set
 phonon.produce_force_constants()
 phonon.symmetrize_force_constants()
