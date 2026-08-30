@@ -1,0 +1,42 @@
+System  = FeSe
+
+# for PLOT DOS
+ISMEAR = -5
+#ICHARG = 11       # non-self-consistent, fixed charge
+# better convergence for small kpt grids
+#ISMEAR = 2
+#SIGMA = 0.05
+
+# converge wave functions
+EDIFF = 1.E-10
+NELM = 300     
+NELMIN = 60
+NBANDS = 160
+ENCUT  = 450
+#ISTART = 1     #讀取WAVECAR 檔案
+#ICHARG = 1     #讀取CHGCAR 檔案
+
+LMAXMIX = 6
+ALGO = Normal
+#AMIX = 0.1
+#BMIX = 0.0001
+
+# switch off all symmetries
+ISYM = -1
+
+LWAVE = TRUE
+LCHARG = TRUE
+
+PREC   = Accurate   # 確保積分網格與運算精度
+ADDGRID= .TRUE.     # 減少受力計算的數值噪音
+
+
+# the energy window to optimize projector channels (absolute)
+#EMIN = -3
+#EMAX = 10
+#NBANDS = 40
+
+# project to Ni d and O p states
+#LORBIT = 14
+#LOCPROJ = "1 2 : d : Pr
+#           3 4 5 6 : p : Pr"
