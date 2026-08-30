@@ -1,0 +1,49 @@
+System  = FeSe
+
+# for PLOT DOS
+ISMEAR = -5
+ICHARG = 5         # non-self-consistent, fixed charge  11
+# better convergence for small kpt grids
+#ISMEAR = 2
+#SIGMA = 0.05
+
+# converge wave functions
+#EDIFF = 1.E-10
+NELMIN = 1000
+ENCUT  = 450
+NELM = 1000
+NELMDL = -1
+
+# the energy window to optimize projector channels (absolute)
+EMIN = -3
+EMAX = 6.9
+NBANDS =  144 # This work more and less does not work. It is a magic number? How to determine it.
+#BNANDS = 50
+
+# slow mixing for charge order
+IMIX = 1
+AMIX = 0.04
+BMIX = 0.3
+IALGO = 38
+
+# switch off all symmetries
+ISYM = -1
+
+LMAXMIX = 6
+
+#LMAXMIX = 6
+#ALGO = Normal
+#AMIX = 0.1
+#BMIX = 0.0001
+
+# switch off all symmetries
+#ISYM = -1
+
+PREC   = Accurate   # 確保積分網格與運算精度
+ADDGRID= .TRUE.     # 減少受力計算的數值噪音
+
+
+# project to Ni d and O p states
+LORBIT = 14
+LOCPROJ = "1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 : d : Pr
+           17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 : p : Pr"
