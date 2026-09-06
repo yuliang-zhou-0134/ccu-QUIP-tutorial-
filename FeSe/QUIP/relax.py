@@ -3,7 +3,7 @@ import glob
 import re
 import numpy as np
 import matplotlib.pyplot as plt
-from ase.io import read
+from ase.io import read, write
 from quippy.potential import Potential
 from ase.optimize import BFGS
 from ase.filters import FrechetCellFilter
@@ -55,5 +55,6 @@ if os.path.exists(relax_target):
     print(f"  b = {uc_b:.5f} A")
     print(f"  c = {uc_c:.5f} A")
     print("="*45 + "\n")
+    write("CONTCAR", atoms, format="vasp")
 else:
     print(f"-> [錯誤] 當前目錄下找不到用於弛豫的 {relax_target} 檔案。")
