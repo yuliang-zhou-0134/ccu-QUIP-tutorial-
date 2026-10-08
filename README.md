@@ -41,23 +41,25 @@ flowchart LR
 
 資料夾中提供 `4×4×2` FeSe 超胞之 extended XYZ 範例。已直接統計目前 `FeSe/VASP/QUIP/energy_only_dataset.xyz`，共有 **440 筆構型（每筆 128 顆原子，且皆具 energy 標記）**。這是 GitHub 現有資料集的數量，**不是**下方兩張結果圖使用的 74 筆資料。更詳細的輸入、參數與限制請參閱 [FeSe/VASP/README.md](FeSe/VASP/README.md)。
 
-## 代表性結果（74 筆訓練構型）
+## FeSe 初步測試：U = J = 0，74 筆訓練構型
 
-這兩張圖由研究者確認來自**使用 74 筆訓練構型的實驗版本**。目前仍未核對其對應的 GAP 模型 XML、計算批次、資料切分，以及它們是否與 GitHub 現存的 440 筆資料集有重疊或版本關係，因此這裡展示的是**初步結果，而非最終模型的可重現 benchmark**。
+這兩張圖為 **pre-test（初步可行性測試）**，使用 **74 筆 Charge-Self-Consistent（CSC，電荷自洽）計算的 FeSe 總能量**作為訓練標記，透過 **QUIP/GAP 進行 energy-only 訓練**，再利用模型預測力與 **Phonopy** 求得聲子及振動熱力學性質。**CSC 是訓練能量的來源，而不是另一種 MLIP。**
 
-### FeSe 聲子色散：DFT 與 CSC 標記之比較
+本次測試設定為 **U = 0、J = 0**，尚未加入有限 Hubbard U 和 Hund J 所代表的局域強關聯修正。因此這些結果僅能展示本工作流程在此基準條件下的可行性，**不能當成已描述 FeSe 強關聯效應的證據**。
 
-![FeSe 聲子色散：DFT 與 CSC（待核對）](FeSe/VASP/assets/FeSe_phonon_DFT_CSC_unverified.png)
+### 聲子色散：DFT 基準與 CSC-energy-trained GAP
 
-**CSC** 指 **Charge-Self-Consistent（電荷自洽）**，此處與 DFT+gRISB 電荷自洽流程有關，**不是 GAP／QUIP 的縮寫**。圖中藍色虛線為 DFT、紅色實線標為 CSC；上方顯示聲子分支，下方顯示標為 `DFT − CSC` 的差值，部分分支有數 meV 級差異。尚需確認曲線是否由**分別以 DFT / CSC 能量資料訓練的 MLIP**產生，或代表直接參考計算結果；在釐清前，不以這張圖單獨宣稱 GAP 對 DFT 的預測誤差。
+![FeSe U=J=0 pre-test 聲子色散](FeSe/VASP/assets/FeSe_phonon_DFT_CSC_unverified.png)
 
-### FeSe 振動熱力學量（暫定圖稿）
+圖中**藍色虛線（DFT）**是參考聲子結果，**紅色實線（圖例 CSC）**是以 CSC 的 74 筆總能量訓練之 **GAP** 所預測的聲子色散，經 **Phonopy** 計算。下方為圖中標示的 **DFT − CSC** 差值。整體色散趨勢相近，但部分聲子分支仍有數 meV 級差異；目前不宣稱已取得獨立驗證集的定量精度。
 
-![FeSe 聲子 DOS 與振動熱性質（待核對）](FeSe/VASP/assets/FeSe_thermal_unverified.png)
+### Phonon DOS 與熱力學性質
 
-展示 phonon DOS、定容熱容、熵與 Helmholtz 自由能。圖中定容熱容在高溫時接近 **3 \(k_B\)/atom**（Dulong–Petit 極限）；此為基本物理合理性檢查，**不等同於**對照 DFT 或實驗的定量準確度驗證。
+![FeSe U=J=0 pre-test 振動熱力學性質](FeSe/VASP/assets/FeSe_thermal_unverified.png)
 
-> **資料集版本提醒：** 兩張圖的實驗版本使用 **74 筆訓練構型**（研究者確認）；目前公開於本 repo 的 `energy_only_dataset.xyz` 則含 **440 筆**。`QUIP指令` 直接讀取該 XYZ，沒有指定 74 筆子集。若要重現圖稿，仍需找到當時的 74 筆資料清單、模型權重與完整計算設定。
+圖中呈現以該次 74 筆 CSC 能量資料訓練之 GAP，配合 Phonopy 得到的聲子 DOS、定容熱容、熵及 Helmholtz 自由能。熱容在高溫趨近 **3 k_B/atom**（Dulong–Petit 極限），可作為物理一致性檢查，**不等於**已與 DFT 或實驗完成定量比對。
+
+> **重現性提醒：** 兩張圖使用 74 筆構型及 U=J=0 已獲研究者確認；目前 GitHub 的 `energy_only_dataset.xyz` 則有 **440 筆、每筆 128 原子**，並非已核對的當次 74 筆訓練集。現有 `QUIP指令` 直接讀取這 440 筆資料，仍需找到當次 74 筆資料、GAP XML 及參數才能完全重現上述結果。
 
 ## Si 相關程式
 
