@@ -22,7 +22,7 @@ os.environ["OMP_NUM_THREADS"] = "16"
 os.environ["MKL_NUM_THREADS"] = "16"
 os.environ["MPI_NUM_THREADS"] = "1"
 
-# 2. 建立矽結構 (64顆原子)
+# 2. 建立矽結構 (216 顆原子：8-atom conventional cell × 3×3×3)
 atoms = bulk('Si', 'diamond', a=5.5063,cubic=True) * (3, 3, 3)
 
 # 3. 設定計算器
@@ -39,7 +39,7 @@ MaxwellBoltzmannDistribution(atoms, temperature_K=TARGET_TEMP)
 # temperature: 目標溫度 (必須使用 ase.units.K)
 dyn = Langevin(atoms, 
                timestep=1.0 * units.fs, 
-               temperature=TARGET_TEMP * units.kB, 
+               temperature_K=TARGET_TEMP, 
                friction=0.02) 
 
 # 6. 設定輸出軌跡檔 (.traj)

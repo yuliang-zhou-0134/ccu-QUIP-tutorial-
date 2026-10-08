@@ -1,24 +1,24 @@
 import numpy as np
-from ase.io import read  # <--- 新增讀取功能
+import matplotlib.pyplot as plt
+from ase import Atoms
+from ase.build import bulk
+from ase.optimize import BFGS
 from phonopy import Phonopy
 from phonopy.structure.atoms import PhonopyAtoms
-from ase import Atoms
-from ase.optimize import BFGS
-from ase.filters import FrechetCellFilter
 from quippy.potential import Potential
+from ase.io import read  
 from ase.constraints import FixAtoms, FixCartesian
 
 
-# --- 設定本次計算的 Supercell 大小 ---
-# 針對 FeSe，建議先從 2x2x2 (N=2) 開始
-# 如果是 N=2, K點建議 (5, 5, 3) (根據你之前的收斂測試)
-N = 4
-xml_filename = "GAP_final_try_4.xml "
-
+# ==========================================
+# 設定區
+# ==========================================
+xml_filename = "GAP_sigma_0.0005_atom_sigma_0.46.xml"
+N = 4  # Supercell 大小
 
 
 # ==========================================
-# 1. 讀取結構 (取代原本的 Step 1 Optimization)
+# 1. 結構設定 (固定晶格常數)
 # ==========================================
 print("=== Step 1: Loading Relaxed FeSe Structure ===")
 
@@ -35,7 +35,7 @@ except Exception as e:
 try:
     calc_gap = Potential(param_filename=xml_filename)
 except Exception as e:
-    parprint(f"Error loading potential: {e}")
+    print(f"Error loading potential: {e}")
     exit()
 
 atoms.calc = calc_gap
@@ -69,20 +69,18 @@ atoms.calc = calc_gap
 print("開始優化 Se 高度...")
 # fmax=0.0001 eV/A 是比較嚴格的標準，適合算聲子前使用
 opt.run(fmax=0.000001)
-print(f"Relaxed Lattice:\n{atoms.get_cell()}")
-
 
 # ==========================================
-# 2. 設定 Phonopy 與 Supercell
+# 2. Phonopy 計算
 # ==========================================
-print(f"=== Step 2: Phonopy Setup (N={N}) ===")
+print(f"=== Step 2: Phonopy Calculation (N={N}) ===")
 
 unitcell = PhonopyAtoms(symbols=atoms.get_chemical_symbols(),
                         cell=atoms.get_cell(),
                         scaled_positions=atoms.get_scaled_positions())
 
 phonon = Phonopy(unitcell,
-                 supercell_matrix=[[N, 0, 0], [0, N, 0], [0, 0, N]])
+                 supercell_matrix=[[N, 0, 0], [0, N, 0], [0, 0, 2]])
 
 phonon.generate_displacements(distance=0.01)
 supercells = phonon.supercells_with_displacements
@@ -113,15 +111,38 @@ for i, sc in enumerate(supercells):
 # ==========================================
 # 3.save
 # ==========================================
-
+print("=== Step 3: Plotting (Manual Interpolation) ===")
 phonon.forces = forces_set
 phonon.produce_force_constants()
 phonon.symmetrize_force_constants()
-   
+
+def get_linear_path(start, end, npoints):
+    return [start + (end - start) * i / (npoints - 1) for i in range(npoints)]
+
+G = np.array([0, 0, 0])
+X = np.array([0.5, 0, 0.0])
+M = np.array([0.5, 0.5, 0])
+Z = np.array([0.0, 0.0, 0.5])
+R = np.array([0.5, 0.0, 0.5])
+A = np.array([0.5, 0.5, 0.5])
+
+path1 = get_linear_path(G, X, 51)
+path2 = get_linear_path(X, M, 51)
+path3 = get_linear_path(M, G, 51)
+path4 = get_linear_path(G, Z, 51)
+path5 = get_linear_path(Z, R, 51)
+path6 = get_linear_path(R, A, 51)
+path7 = get_linear_path(A, Z, 51)
+
+phonon.run_band_structure([path1, path2, path3, path4, path5, path6, path7],
+        with_eigenvectors=True)
+
+
     
     # =========== [請在這裡加入存檔指令] ===========
 print("Saving phonopy parameters to yaml...")
-phonon.save(f"phonopy_params_N{N}44_QUIP_only_energy_final_try.yaml")
-print(f"Saved: phonopy_params_N{N}44_QUIP_only_energy_final_try.yaml")
+phonon.write_yaml_band_structure(filename="band_N444_energy.yaml")
+print(f"Saved: band_N444_energy.yaml")
     # ============================================
+
 

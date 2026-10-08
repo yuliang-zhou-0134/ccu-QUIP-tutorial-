@@ -5,7 +5,7 @@ from ase.io import read, write
 # --- 參數設定 ---
 input_poscar = 'POSCAR_4*4*2_perfect'  # 你的原始擴胞 POSCAR
 base_dir = "mlip_training_set_v2"         # 統一存放在這個主目錄下
-#vasp_inputs = ['INCAR', 'KPOINTS', 'POTCAR']
+vasp_inputs = ['INCAR', 'KPOINTS', 'POTCAR']  # 僅複製工作目錄中實際存在的輸入檔
 displacement_stdev = 0.01              # Rattle 微擾大小
 
 # 讀取原始結構
