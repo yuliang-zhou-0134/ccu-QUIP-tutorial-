@@ -19,7 +19,7 @@
 
 指令檔使用 `gap_fit`、`mpirun`、QUIP／MPI 環境；請先確認本地的執行路徑和輸出模型檔名。
 
-**資料版本提醒：** 現有 `QUIP指令` 直接以 `at_file=energy_only_dataset.xyz` 讀取 440 筆構型，沒有指定 74 筆篩選。研究者已確認兩張結果圖使用 **74 筆訓練構型**。兩者不可當成相同資料集；`n_sparse` 是稀疏環境數，並非訓練構型筆數。
+**資料版本提醒：** 現有 `QUIP指令` 直接以 `at_file=energy_only_dataset.xyz` 讀取 440 筆構型，沒有指定 74 筆篩選。研究者已確認兩張結果圖使用 **74 筆 CSC（charge-self-consistent）總能量訓練構型**，經 GAP energy-only 訓練與 Phonopy 計算，屬 **U=J=0 的 pre-test**。兩者不可當成相同資料集；`n_sparse` 是稀疏環境數，並非訓練構型筆數。
 
 ## 弛豫
 
