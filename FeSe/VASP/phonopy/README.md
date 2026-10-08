@@ -21,4 +21,4 @@
 
 ## 目前結果圖
 
-參見 [根目錄 README](../../../README.md) 或 [FeSe/VASP/README.md](../README.md)。兩張圖均已由研究者確認使用 **74 筆訓練構型**，但尚未確認當時的模型檔與現有 440 筆 XYZ 之版本關係。圖中 **CSC = Charge-Self-Consistent（電荷自洽）**，不是 GAP 的縮寫；該聲子曲線的具體產生方式仍需核對。
+參見 [根目錄 README](../../../README.md) 或 [FeSe/VASP/README.md](../README.md)。兩張圖均已由研究者確認使用 **74 筆訓練構型**，但尚未確認當時的模型檔與現有 440 筆 XYZ 之版本關係。圖中 **CSC = Charge-Self-Consistent（電荷自洽）**，不是 GAP 的縮寫；紅色 CSC 聲子曲線已確認是 **74 筆 CSC 總能量 → energy-only GAP → Phonopy** 的結果，條件為 **U=J=0**；因此它不是直接計算的 CSC 聲子，也不是有限 U、J 強關聯效應的驗證。
