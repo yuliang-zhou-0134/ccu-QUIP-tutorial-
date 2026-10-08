@@ -18,7 +18,7 @@
 | 路徑 | 功能或注意事項 |
 | --- | --- |
 | `ASE/create_xyz.py` | 掃描含 `scf/` 和 `csc/` 的計算目錄，輸出 `scf_data.xyz`、`csc_data.xyz` |
-| `QUIP/energy_only_dataset.xyz` | 原本提供的 FeSe extended XYZ 範例，使用前請確認資料量與標記定義 |
+| `QUIP/energy_only_dataset.xyz` | 現有 FeSe extended XYZ：**440 筆構型、每筆 128 顆原子**；與兩張圖使用的 74 筆訓練資料版本不同，關係待核對 |
 | `QUIP/QUIP指令` | `gap_fit` 指令、`default_sigma`、描述符及 `e0` 參數 |
 | `QUIP/relax.py` | 從指定 GAP XML 和 POSCAR 弛豫結構，模型路徑需修改 |
 | `phonopy/QUIP_for_calc_phonon.py` | 從模型預測力建構 Phonopy 力常數 |
@@ -48,9 +48,9 @@ python FeSe/VASP/ASE/create_xyz.py /path/to/calculation_root \
 
 ![FeSe 振動熱力學性質（待核對）](assets/FeSe_thermal_unverified.png)
 
-- 目前聲子圖的圖例是 **DFT / CSC**，不是 DFT / GAP；需核對計算方法與模型版本後才能將其用作 energy-only GAP 的性能比較。
+- 聲子圖圖例為 **DFT / CSC**。**CSC = Charge-Self-Consistent（電荷自洽）**，與 DFT+gRISB 流程相關，並非 GAP／QUIP 的縮寫。需確認曲線是直接參考計算，還是各自標記的 MLIP 結果，才能解讀其預測誤差。
 - 熱性質圖包含 Phonon DOS、熱容、熵與自由能；熱容接近 3 \(k_B\)/atom 的高溫極限，僅提供物理一致性線索。
-- 研究者提及「約 74 筆」資料的一次訓練經驗，**尚未確認**與此兩張圖、以及 `energy_only_dataset.xyz` 完全對應。
+- **研究者已確認兩張圖使用 74 筆訓練構型**。現有 `QUIP/energy_only_dataset.xyz` 經逐筆解析則有 **440 筆**；目前 `QUIP/QUIP指令` 不含 74 筆篩選步驟，因此尚不能直接重現圖中實驗。
 - 定量 RMSE、資料分割與最終模型設定待補充，現在不宣稱特定預測精度。
 
 ## 5. 重要提醒
