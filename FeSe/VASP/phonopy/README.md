@@ -21,4 +21,4 @@
 
 ## 目前結果圖
 
-參見 [根目錄 README](../../../README.md) 或 [FeSe/VASP/README.md](../README.md)。其中 DFT/CSC 聲子圖與熱性質圖的模型、資料量對應仍待核對。
+參見 [根目錄 README](../../../README.md) 或 [FeSe/VASP/README.md](../README.md)。兩張圖均已由研究者確認使用 **74 筆訓練構型**，但尚未確認當時的模型檔與現有 440 筆 XYZ 之版本關係。圖中 **CSC = Charge-Self-Consistent（電荷自洽）**，不是 GAP 的縮寫；該聲子曲線的具體產生方式仍需核對。
