@@ -48,7 +48,7 @@ python FeSe/VASP/ASE/create_xyz.py /path/to/calculation_root \
 
 ![FeSe 振動熱力學性質（待核對）](assets/FeSe_thermal_unverified.png)
 
-- 聲子圖圖例為 **DFT / CSC**。**CSC = Charge-Self-Consistent（電荷自洽）**，與 DFT+gRISB 流程相關，並非 GAP／QUIP 的縮寫。需確認曲線是直接參考計算，還是各自標記的 MLIP 結果，才能解讀其預測誤差。
+- 聲子圖圖例為 **DFT / CSC**。**CSC = Charge-Self-Consistent（電荷自洽）**，與 DFT+gRISB 流程相關，並非 GAP／QUIP 的縮寫。圖中的紅色 CSC 曲線已確認為使用 74 筆 CSC 能量資料進行 energy-only GAP 訓練，再以 Phonopy 計算的結果；藍色 DFT 為參考曲線。這組測試 U=J=0，尚未加入有限 U、J 的強關聯修正。
 - 熱性質圖包含 Phonon DOS、熱容、熵與自由能；熱容接近 3 \(k_B\)/atom 的高溫極限，僅提供物理一致性線索。
 - **研究者已確認兩張圖使用 74 筆訓練構型**。現有 `QUIP/energy_only_dataset.xyz` 經逐筆解析則有 **440 筆**；目前 `QUIP/QUIP指令` 不含 74 筆篩選步驟，因此尚不能直接重現圖中實驗。
 - 定量 RMSE、資料分割與最終模型設定待補充，現在不宣稱特定預測精度。
