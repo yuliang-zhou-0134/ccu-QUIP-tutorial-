@@ -41,9 +41,11 @@ flowchart LR
 
 資料夾中提供 `4×4×2` FeSe 超胞之 extended XYZ 範例。已直接統計目前 `FeSe/VASP/QUIP/energy_only_dataset.xyz`，共有 **440 筆構型（每筆 128 顆原子，且皆具 energy 標記）**。這是 GitHub 現有資料集的數量，**不是**下方兩張結果圖使用的 74 筆資料。更詳細的輸入、參數與限制請參閱 [FeSe/VASP/README.md](FeSe/VASP/README.md)。
 
-## FeSe 初步測試：U = J = 0，74 筆訓練構型
+## FeSe 初步測試：U = J = 0，74 筆訓練紀錄
 
-這兩張圖為 **pre-test（初步可行性測試）**，使用 **74 筆 Charge-Self-Consistent（CSC，電荷自洽）計算的 FeSe 總能量**作為訓練標記，透過 **QUIP/GAP 進行 energy-only 訓練**，再利用模型預測力與 **Phonopy** 求得聲子及振動熱力學性質。**CSC 是訓練能量的來源，而不是另一種 MLIP。**
+**給新進學弟的實作入口：** [FeSe 74 筆 energy-only GAP → Phonopy 入門教學](FeSe/VASP/QUIP/U0J0_pretest/)。教學依「先使用已訓練模型 → 自己訓練 GAP → 自行生成 DFT 參考資料」編排；目前已建立教學文件，伺服器上的原始資料、模型與端到端測試尚待補齊。
+
+這兩張圖為 **pre-test（初步可行性測試）**，使用 **74 筆 Charge-Self-Consistent（CSC，電荷自洽）計算的 FeSe 總能量紀錄（59 個不同幾何構型）**作為訓練標記，透過 **QUIP/GAP 進行 energy-only 訓練**，再利用模型預測力與 **Phonopy** 求得聲子及振動熱力學性質。**CSC 是訓練能量的來源，而不是另一種 MLIP。**
 
 本次測試設定為 **U = 0、J = 0**，尚未加入有限 Hubbard U 和 Hund J 所代表的局域強關聯修正。因此這些結果僅能展示本工作流程在此基準條件下的可行性，**不能當成已描述 FeSe 強關聯效應的證據**。
 
@@ -59,7 +61,7 @@ flowchart LR
 
 圖中呈現以該次 74 筆 CSC 能量資料訓練之 GAP，配合 Phonopy 得到的聲子 DOS、定容熱容、熵及 Helmholtz 自由能。熱容在高溫趨近 **3 k_B/atom**（Dulong–Petit 極限），可作為物理一致性檢查，**不等於**已與 DFT 或實驗完成定量比對。
 
-> **重現性提醒：** 兩張圖使用 74 筆構型及 U=J=0 已獲研究者確認；目前 GitHub 的 `energy_only_dataset.xyz` 則有 **440 筆、每筆 128 原子**，並非已核對的當次 74 筆訓練集。現有 `QUIP指令` 直接讀取這 440 筆資料，仍需找到當次 74 筆資料、GAP XML 及參數才能完全重現上述結果。
+> **重現性提醒：** 兩張圖使用 74 筆構型及 U=J=0 已獲研究者確認；目前 GitHub 的 `energy_only_dataset.xyz` 則有 **440 筆、每筆 128 原子**，並非已核對的當次 74 筆訓練集。現有 `QUIP指令` 直接讀取這 440 筆資料，當次 74 筆資料、GAP XML 及參數已於實驗室伺服器定位，但尚待補上 GitHub 並測試，才能讓他人完整重現上述結果。
 
 ## Si 相關程式
 
