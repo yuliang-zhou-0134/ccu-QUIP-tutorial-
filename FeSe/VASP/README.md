@@ -1,6 +1,6 @@
 # FeSe｜VASP / DFT(+gRISB) → energy-only GAP → Phonopy
 
-本目錄整理 FeSe 的結構生成、電子結構能量擷取、GAP/QUIP 位能擬合及聲子分析流程。這是**研究用範例**，部分程式需自行指定輸入檔、已訓練的 GAP XML 或 DFT 參考結果。
+本目錄整理 FeSe 的結構生成、電子結構能量擷取、GAP/QUIP 位能擬合及聲子分析流程。這是**研究用範例**；其中 [QUIP/U0J0_pretest/](QUIP/U0J0_pretest/) 已提供完整歷史輸入與五關實作教材，其他程式仍可能需自行指定外部輸入或模型。
 
 ## 1. 工作流程
 
@@ -18,7 +18,8 @@
 | 路徑 | 功能或注意事項 |
 | --- | --- |
 | `ASE/create_xyz.py` | 掃描含 `scf/` 和 `csc/` 的計算目錄，輸出 `scf_data.xyz`、`csc_data.xyz` |
-| `QUIP/energy_only_dataset.xyz` | 現有 FeSe extended XYZ：**440 筆構型、每筆 128 顆原子**；與兩張圖使用的 74 筆訓練資料版本不同，關係待核對 |
+| `QUIP/energy_only_dataset.xyz` | 另一組 FeSe extended XYZ：**440 筆構型、每筆 128 顆原子**；不是 U0J0 的 74-frame 資料，不可混用 |
+| `QUIP/U0J0_pretest/` | 已驗證的 74 筆紀錄（59 個不同幾何）、歷史 GAP、4×4×4 Phonopy、熱性質、DFT 比較與重訓教材 |
 | `QUIP/QUIP指令` | `gap_fit` 指令、`default_sigma`、描述符及 `e0` 參數 |
 | `QUIP/relax.py` | 從指定 GAP XML 和 POSCAR 弛豫結構，模型路徑需修改 |
 | `phonopy/QUIP_for_calc_phonon.py` | 從模型預測力建構 Phonopy 力常數 |
@@ -44,18 +45,18 @@ python FeSe/VASP/ASE/create_xyz.py /path/to/calculation_root \
 
 ## 4. 圖稿及結果狀態
 
-![FeSe 聲子：DFT 與 CSC（待核對）](assets/FeSe_phonon_DFT_CSC_unverified.png)
+![FeSe 聲子：DFT 與 energy-only GAP](QUIP/U0J0_pretest/results/phonon_comparison_historical.png)
 
-![FeSe 振動熱力學性質（待核對）](assets/FeSe_thermal_unverified.png)
+![FeSe 振動熱力學性質](QUIP/U0J0_pretest/results/thermal_properties_historical.png)
 
 - 聲子圖圖例為 **DFT / CSC**。**CSC = Charge-Self-Consistent（電荷自洽）**，與 DFT+gRISB 流程相關，並非 GAP／QUIP 的縮寫。圖中的紅色 CSC 曲線已確認為使用 74 筆 CSC 能量資料進行 energy-only GAP 訓練，再以 Phonopy 計算的結果；藍色 DFT 為參考曲線。這組測試 U=J=0，尚未加入有限 U、J 的強關聯修正。
 - 熱性質圖包含 Phonon DOS、熱容、熵與自由能；熱容接近 3 \(k_B\)/atom 的高溫極限，僅提供物理一致性線索。
-- **研究者已確認兩張圖使用 74 筆訓練構型**。現有 `QUIP/energy_only_dataset.xyz` 經逐筆解析則有 **440 筆**；目前 `QUIP/QUIP指令` 不含 74 筆篩選步驟，因此尚不能直接重現圖中實驗。
-- 定量 RMSE、資料分割與最終模型設定待補充，現在不宣稱特定預測精度。
+- 圖中實驗使用 `QUIP/U0J0_pretest/data/csc_data_74.xyz` 的 74 筆紀錄（59 個不同幾何），而不是 440-frame 資料；歷史 GAP XML、9 個 SparseX、訓練命令與 Phonopy/DFT 輸入均已保存並通過重現測試。
+- 74-frame energy MAE/RMSE 是訓練集殘差，不是獨立驗證精度；新舊模型的 force 差也不是 DFT force accuracy。DFT/GAP 聲子比較使用不同 relaxed geometry，定量差值須連同此限制解讀。
 
 ## 5. 重要提醒
 
 - 請核對輸入 POSCAR、超胞大小、cutoff 與 k-point 設定，不同腳本不一定相同。
-- 部分執行檔（VASP、gRISB 腳本、POTCAR）、模型 XML、計算輸出未收錄；使用者需自行準備合規的軟體與資料。
-- `phonopy/phonopy_disp.yaml` 目前不能單獨重現 DFT 與 MLIP 聲子色散的完整對照。
+- VASP、gRISB 執行檔與 `POTCAR` 不收錄；若要產生新的 DFT 參考資料，使用者需自行準備合規軟體與授權資料。U0J0 教材本身不執行 VASP 或 DFT+gRISB。
+- 一般 `phonopy/phonopy_disp.yaml` 不能單獨重現 DFT 與 MLIP 聲子色散；U0J0 教材另附所需 GAP YAML、DFT YAML 與 `FORCE_CONSTANTS`。
 - 對 DOS、熱容、熵與自由能等物性，需確認正規化單位、晶胞定義及 DFT 或實驗對照後才能作定量結論。

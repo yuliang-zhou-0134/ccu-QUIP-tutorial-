@@ -1,0 +1,88 @@
+{
+  "status": "passed",
+  "training_exit_code": 0,
+  "validation_exit_code": 0,
+  "phonopy_run": false,
+  "launch": {
+    "processes": 1,
+    "mpirun_used": false,
+    "cpu_limit": 1,
+    "virtual_memory_limit_GiB": 2,
+    "timeout_seconds": 600,
+    "OMP_NUM_THREADS": 1,
+    "OPENBLAS_NUM_THREADS": 1,
+    "MKL_NUM_THREADS": 1,
+    "NUMEXPR_NUM_THREADS": 1
+  },
+  "software": {
+    "QUIP_version": "v0.10.2-dirty",
+    "QUIP_ARCH": "linux_x86_64_gfortran",
+    "compiled": "2026-02-23 15:27:34",
+    "gap_fit_sha256": "48427389f82adb94fa6257dec0e3a45fd54b926077f99c046c14304a219b0bb1"
+  },
+  "training_data": {
+    "path": "data/csc_data_74.xyz",
+    "sha256": "809cd88d5657dbd073e0131d67b6b0379831d8f4a9be967c9abb21b882cdb1b0",
+    "frames": 74,
+    "atoms_per_frame": 32,
+    "energy_labels": 74,
+    "force_labels": 0,
+    "virial_labels": 0
+  },
+  "training_resources": {
+    "wall_seconds": 7.16,
+    "user_seconds": 4.46,
+    "system_seconds": 0.13,
+    "maximum_RSS_KiB": 63024,
+    "swaps": 0
+  },
+  "validation_resources": {
+    "wall_seconds": 4.38,
+    "user_seconds": 4.21,
+    "system_seconds": 0.16,
+    "maximum_RSS_KiB": 110480,
+    "swaps": 0
+  },
+  "model_output": {
+    "xml": "csc_ver_retrained.xml",
+    "xml_sha256": "d6dbc847370431b75e75464a4e9e66b99042506b1c88ff6329fdb14ba62c0a24",
+    "referenced_sparse_files": 9,
+    "all_sparse_files_present": true,
+    "all_embedded_sparse_md5_match": true,
+    "quippy_load_succeeded": true
+  },
+  "warnings": [
+    "distance_2b Se-Se had 3 data points, so n_sparse was reduced from 50 to 3",
+    "angle_3b Se-Fe-Se had 7 data points, so n_sparse was reduced from 200 to 7",
+    "angle_3b Se-Se-Se had 8 data points, so n_sparse was reduced from 200 to 8"
+  ],
+  "validation": {
+    "all_old_energies_and_forces_finite": true,
+    "all_new_energies_and_forces_finite": true,
+    "force_array_shape": [74, 32, 3],
+    "new_minus_reference_energy_eV_per_configuration": {
+      "mae": 5.6884833482498025e-05,
+      "rmse": 0.00011632302177835886,
+      "max_abs": 0.0005286032319986589
+    },
+    "new_minus_reference_energy_eV_per_atom": {
+      "mae": 1.7776510463280633e-06,
+      "rmse": 3.6350944305737145e-06,
+      "max_abs": 1.651885099995809e-05
+    },
+    "new_minus_old_energy_eV_per_configuration": {
+      "mae": 2.6028993255061544e-07,
+      "rmse": 7.527663908436689e-07,
+      "max_abs": 4.171075516978817e-06
+    },
+    "new_minus_old_force_components_eV_per_A": {
+      "mae": 9.983407382305793e-05,
+      "rmse": 0.0003487362649144005,
+      "max_abs": 0.0034276519324962784
+    },
+    "repeat_frame0_energy_abs_difference_eV": 0.0,
+    "repeat_frame0_force_max_abs_difference_eV_per_A": 0.0,
+    "independent_validation_set_accuracy": false,
+    "DFT_force_accuracy": false
+  }
+}

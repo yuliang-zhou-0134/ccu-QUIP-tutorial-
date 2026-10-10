@@ -1,0 +1,64 @@
+{
+  "runtime_phonopy_version": "3.2.1",
+  "supercell_matrix": [
+    [
+      4,
+      0,
+      0
+    ],
+    [
+      0,
+      4,
+      0
+    ],
+    [
+      0,
+      0,
+      4
+    ]
+  ],
+  "atoms_per_supercell": 256,
+  "displaced_supercells": 4,
+  "displacement_distance_A": 0.009999999999999995,
+  "background_force_max_abs_component_eV_per_A": 0.0004854068814766524,
+  "forces_all_finite": true,
+  "force_constants_shape": [
+    4,
+    256,
+    3,
+    3
+  ],
+  "force_constants_all_finite": true,
+  "yaml_reload": true,
+  "frequency_unit": "meV",
+  "q_path": [
+    "Gamma",
+    "X",
+    "M",
+    "Gamma",
+    "Z",
+    "R",
+    "A",
+    "Z"
+  ],
+  "points_per_segment": 100,
+  "band_array_shape": [
+    700,
+    12
+  ],
+  "max_abs_force_difference_eV_per_A": 3.1239192343684996e-05,
+  "rms_force_difference_eV_per_A": 2.213252159180923e-06,
+  "max_abs_frequency_difference_meV": 0.012615810417372586,
+  "mean_abs_frequency_difference_meV": 0.003869208867009409,
+  "rms_frequency_difference_meV": 0.0047129293577296205,
+  "historical_minimum_frequency_meV": -1.6361528895709773e-06,
+  "reproduced_minimum_frequency_meV": -9.605308961322134e-07,
+  "minimum_frequency_difference_meV": 6.756219934387639e-07,
+  "historical_negative_frequency_values": 3,
+  "reproduced_negative_frequency_values": 6,
+  "historical_frequency_values_below_minus_0_1_meV": 0,
+  "reproduced_frequency_values_below_minus_0_1_meV": 0,
+  "historical_Gamma_Z_max_branch_span_meV": 5.705605979498809,
+  "reproduced_Gamma_Z_max_branch_span_meV": 5.7066608242006795,
+  "Gamma_Z_max_span_difference_meV": 0.0010548447018701168
+}
