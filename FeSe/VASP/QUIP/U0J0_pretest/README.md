@@ -117,12 +117,23 @@ QUIP         v0.10.2-dirty, linux_x86_64_gfortran
 - 重新訓練：QUIP 的 `gap_fit`。
 - 聲子與繪圖：Phonopy、Matplotlib；PyYAML 供一般 YAML 工具使用。
 
-## 第 0 關：低成本完整性檢查
+## 執行目錄（重要）
 
-從 repository 根目錄執行：
+**以下所有教學指令都以 `FeSe/VASP/QUIP/U0J0_pretest/` 為目前工作目錄**，包括 `python scripts/...`、`python phonon/...` 和 `bash training/...`；不要直接在 GitHub repository 根目錄執行這些相對路徑指令。
+
+第一次操作時，請先從 repository 根目錄進入教學資料夾：
 
 ```bash
 cd FeSe/VASP/QUIP/U0J0_pretest
+```
+
+之後的各關都沿用此工作目錄。如果重新開啟終端機，請先確認 `pwd`，必要時重新切換到這個教學資料夾。**以下不再重複 `cd`**。
+
+## 第 0 關：低成本完整性檢查
+
+在上述教學資料夾執行：
+
+```bash
 sha256sum --check checksums.sha256
 python scripts/check_assets.py
 python -m py_compile scripts/*.py phonon/*.py
@@ -248,7 +259,7 @@ timeout 600s taskset -c 0 \
 輸入是第 1 關產生且已通過 reload 測試的
 `phonon/output_reproduction_4x4/csc_ver_reproduced_4x4.yaml`。它已含力常數；本步不載入 GAP、不產生位移，也不重算 forces。
 
-歷史 `thermal.py` 的設定是 30×30×30 mesh、停用 mesh symmetry、0–1000 K、每 10 K 一點。從 repository 根目錄執行：
+歷史 `thermal.py` 的設定是 30×30×30 mesh、停用 mesh symmetry、0–1000 K、每 10 K 一點。請在前述 `U0J0_pretest/` 工作目錄執行：
 
 ```bash
 python phonon/thermal.py \
@@ -418,7 +429,7 @@ preflight 會確認：`gap_fit` 可執行且動態函式庫齊全、輸入 SHA-2
 
 ### 4.3 正式訓練
 
-取得資源核准後，從 repository 根目錄執行：
+取得資源核准後，請在前述 `U0J0_pretest/` 工作目錄執行：
 
 ```bash
 export OMP_NUM_THREADS=1
