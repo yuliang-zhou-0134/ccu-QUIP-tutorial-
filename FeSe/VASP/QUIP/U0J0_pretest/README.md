@@ -61,61 +61,32 @@ U0J0_pretest/
 
 不要混用上一層的 `energy_only_dataset.xyz`；它是另一組 440×128 資料，訓練設定也不同。
 
-## 測試狀態（2026-10-10）
+## 環境
 
-| 狀態 | 項目 | 結果 |
-| --- | --- | --- |
-| ✅ 已通過 | XYZ 結構檢查 | 74 frames、每筆 Fe16Se16／32 atoms、74 筆皆有 energy |
-| ✅ 已通過 | 重複幾何檢查 | 59 個不同幾何；frames 33–48 為同一幾何 |
-| ✅ 已通過 | GAP 檔案完整性 | XML 可解析；9 個 SparseX 都存在且 MD5 與 XML 一致 |
-| ✅ 已通過 | 既有模型單點 smoke test | frame 0 可算有限 energy 與 32×3 forces |
-| ✅ 已通過 | Python／shell 靜態檢查 | 教學腳本無 repository 外硬編碼路徑 |
-| ✅ 已通過 | 2×2×2、skip-relax GAP → Phonopy smoke test | 4 個位移構型；forces／force constants 皆有限；YAML 可重新載入 |
-| ✅ 已通過 | 歷史 `csc_ver.yaml` 直接重畫 | 700×12 頻率陣列；最低頻率為數值零；圖形正常 |
-| ✅ 已通過 | 歷史 relaxed cell 的 4×4×4 GAP → Phonopy | 新舊頻率最大差 2.69×10⁻⁶ meV、RMS 5.25×10⁻⁸ meV |
-| ✅ 已通過 | 4×4×4 YAML 振動熱力學 | 30³ mesh；1000 K 的 Cv 為 2.96790 kB/atom；CSV、圖與 JSON 均已輸出 |
-| ✅ 已通過 | DFT／重現 GAP 聲子比較 | 相同 700 q-points、12 branches、meV；MAE 1.62477 meV、RMSE 2.11048 meV |
-| ✅ 已通過 | GAP retraining preflight | XML 參數逐字一致；74-frame SHA-256 鎖定；gap_fit／函式庫可載入；未啟動訓練 |
-| ✅ 已通過 | 74-frame `gap_fit` 重新訓練 | 1 process、7.16 秒、63,024 KiB；新 XML＋9 SparseX 可完整載入 |
-| ✅ 已通過 | 重訓模型行為驗證 | 74 筆 energy／forces 全部 finite；新舊 energy MAE 2.60×10⁻⁷ eV/config |
-| ✅ 已通過 | 重訓模型 4×4×4 GAP → Phonopy | 聲子 MAE 0.00387 meV、RMSE 0.00471 meV；無實質虛頻 |
-| 🚫 不在範圍 | VASP／DFT+gRISB 重跑 | 本教學不執行 |
+需要 Python、NumPy、ASE、Phonopy、Matplotlib，以及能與 ASE 搭配使用的 **QUIP／quippy**。第 4 關若要自行訓練 GAP，另外需要 QUIP 的 `gap_fit` 指令。
 
-本機單點 smoke test 的實際結果：
+這份範例使用過的相容版本供參考（不代表只能使用這些版本）：
 
-```text
-reference energy:      -225.7860979000 eV
-GAP energy:            -225.7860782191 eV
-GAP - reference:          0.0000196809 eV
-forces shape:                 (32, 3)
-max |force|:               0.0784306319 eV/Å
+| 軟體 | 參考版本 |
+| --- | --- |
+| Python | 3.10 |
+| NumPy | 1.26 |
+| ASE | 3.28 |
+| Phonopy | 3.2.1 |
+| Matplotlib | 3.10 |
+| QUIP | v0.10.2 |
+
+`quippy` 是用 Python 呼叫 GAP 計算原子力的介面，`gap_fit` 則是 QUIP 的訓練工具；兩者不是同一個指令。可使用相容的 `quippy-ase`，或實驗室既有的 QUIP Python binding。後者可能需要 `f90wrap`，也可能必須將編譯路徑加入 `PYTHONPATH`。如需訓練，請確認 `gap_fit` 與目前的 compiler／MPI runtime 相容；本範例使用單一 `gap_fit` process，**不需要 `mpirun`**。
+
+首次使用可確認：
+
+```bash
+python -c "import numpy, ase, phonopy, matplotlib; print('Python packages OK')"
+python -c "from quippy.potential import Potential; print('quippy OK')"
+command -v gap_fit  # 只有第 4 關重新訓練時才需要
 ```
 
-這只證明 XML＋SparseX 能被讀取並產生有限值；不能當成獨立測試誤差。
-
-## 實測環境
-
-本次低成本測試記錄：
-
-```text
-Python       3.10.19
-NumPy        1.26.4
-ASE          3.28.0
-Phonopy      3.2.1
-Matplotlib   3.10.8
-PyYAML       5.4.1
-QUIP         v0.10.2-dirty, linux_x86_64_gfortran
-              compiled 2026-02-23 15:27:34
-```
-
-預設 Python 雖有 ASE／Phonopy，卻沒有可直接 import 的 `quippy`。可用的 QUIP Python binding 還需要同環境中的 `f90wrap`；本機是以既有 `atom_sim` conda environment 加 QUIP build 的 `PYTHONPATH` 通過 smoke test。不同機器請安裝相容的 `quippy-ase`，或使用同一 QUIP build 所產生的 Python binding。
-
-最低依賴：
-
-- 資料檢查：Python、NumPy、ASE。
-- 模型推論／Phonopy forces：以上加 quippy（須能讀取此 QUIP XML）。
-- 重新訓練：QUIP 的 `gap_fit`。
-- 聲子與繪圖：Phonopy、Matplotlib；PyYAML 供一般 YAML 工具使用。
+如果 `quippy` 無法匯入，請先在實驗室環境載入正確的 Python／QUIP binding；不要直接修改教學腳本中的模型路徑或模型參數來解決匯入問題。
 
 ## 執行目錄（重要）
 
@@ -129,15 +100,13 @@ cd FeSe/VASP/QUIP/U0J0_pretest
 
 之後的各關都沿用此工作目錄。如果重新開啟終端機，請先確認 `pwd`，必要時重新切換到這個教學資料夾。**以下不再重複 `cd`**。
 
-## 第 0 關：低成本完整性檢查
+## 第 0 關：確認教學檔案
 
 在上述教學資料夾執行：
 
 ```bash
 sha256sum --check checksums.sha256
 python scripts/check_assets.py
-python -m py_compile scripts/*.py phonon/*.py
-bash -n training/train_gap.sh
 ```
 
 預期看到 SHA-256 全部 `OK`，以及：
@@ -171,36 +140,15 @@ PYTHONPATH="$QUIP_PYTHON_BUILD" python scripts/model_smoke_test.py
 - 找不到 SparseX：XML 與 9 個 SparseX 必須留在同一個 `model/`。
 - MD5 mismatch：檔案被修改、改錯版本或複製不完整；先比對 `checksums.sha256`。
 
-### 1.2 GAP → Phonopy 流程測試
+### 1.2 從結構產生聲子
 
-先做第 1 關，然後才執行：
+確認既有 GAP 模型能讀取後，可用以下指令從 `phonon/POSCAR` 開始：
 
 ```bash
 python phonon/run_gap_phonopy.py
 ```
 
-預設會：
-
-1. 讀取 `phonon/POSCAR`。
-2. 依歷史腳本做 hydrostatic cell relaxation。
-3. 建立 4×4×4（256 atoms）supercell 與 0.01 Å 位移。
-4. 用 GAP 算 perfect cell 與 displaced cells 的力，扣除 background force。
-5. 將新 YAML、弛豫結構、log、trajectory 與聲子圖寫到 `phonon/output/`。
-
-歷史檔永遠不會被預設輸出覆蓋；若 output 已存在，腳本會停止。快速除錯可先另指定較小測試：
-
-```bash
-python phonon/run_gap_phonopy.py \
-  --supercell 2 2 2 \
-  --skip-relax \
-  --output-dir phonon/output_smoke
-```
-
-2×2×2 只能測流程，不可拿來宣稱重現歷史 4×4×4 結果。
-
-2026-10-09 的實測使用 1 CPU、1 GiB virtual-memory 上限與 300 秒 timeout，程序在 15.96 秒完成，maximum RSS 為 174,048 KiB（169.97 MiB）。輸出 YAML 可正常重新載入；force array 為 `(4, 32, 3)`，compact force constants 為 `(4, 32, 3, 3)`，全部是有限值。未弛豫 POSCAR 的最大背景力分量為 3.29072996 eV/Å；沿教學 q-path 的最低頻率為 −1.829399 THz（−7.565788 meV），所以這個 smoke test **只驗證流程，不代表穩定聲子結果**。完整 smoke-test output 是可重新產生的工作檔，因此不納入 Git；上列數值已保留於本教材。
-
-預期輸出：
+程式先做 **hydrostatic cell relaxation**，再建立 4×4×4 supercell、產生 0.01 Å 的位移，以 GAP 計算原子力及 Phonopy 力常數，輸出新的聲子圖與 YAML。
 
 ```text
 phonon/output/
@@ -211,55 +159,47 @@ phonon/output/
 └── phonon_gap_reproduced.png
 ```
 
-### 1.3 已驗證的歷史 4×4×4 重現路徑
+如果只想確認程式能執行，也可以用較小的超胞：
 
-正式重現不使用未弛豫 POSCAR，也不使用 fully relaxed CONTCAR；它直接從 `csc_ver.yaml` 讀取當次 hydrostatic-relaxed unit cell。先確認歷史 YAML 可獨立重畫：
+```bash
+python phonon/run_gap_phonopy.py \
+  --supercell 2 2 2 \
+  --skip-relax \
+  --output-dir phonon/output_smoke
+```
+
+**注意：** 跳過結構弛豫的 2×2×2 計算只是操作練習，未弛豫 POSCAR 可能產生明顯虛頻，不能當成正式物理結果。若 `output/` 已存在，請另用新輸出目錄，不要覆寫歷史資料。
+
+### 1.3 重現歷史 4×4×4 聲子
+
+若要重現當時的結果，請直接使用 `phonon/csc_ver.yaml` 內保存的 **hydrostatic-relaxed unit cell**，不要以未弛豫 POSCAR 或 fully relaxed CONTCAR 取代。
+
+先讀取歷史 YAML 繪圖：
 
 ```bash
 python phonon/redraw_historical.py \
   --output-dir phonon/output_history_redraw
 ```
 
-再用同一 unit cell、原始 GAP、4×4×4 supercell 與歷史 0.01 Å 位移重算 forces：
+接著以歷史模型重新計算 4×4×4 的位移力：
 
 ```bash
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
-ulimit -v 2097152
-timeout 600s taskset -c 0 \
-  python phonon/reproduce_historical_4x4.py \
+
+python phonon/reproduce_historical_4x4.py \
   --output-dir phonon/output_reproduction_4x4
 ```
 
-腳本會先核對重新產生的四個位移原子索引與位移向量是否和歷史 YAML 一致，然後才呼叫 GAP。力的處理與原始腳本相同：先計算 perfect supercell 的 background force，位移結構力減去 background，再 `produce_force_constants()` 與 `symmetrize_force_constants()`。
+輸出目錄內包含 `csc_ver_reproduced_4x4.yaml`、聲子圖及 `reproduction_metrics.json`。腳本會核對 0.01 Å 位移，計算未位移 supercell 的背景力，將背景力從位移後原子力扣除，再由 Phonopy 建立並對稱化力常數。
 
-2026-10-09 實測結果：
-
-| 指標 | 結果 |
-| --- | ---: |
-| Supercell／原子數 | 4×4×4／256 atoms |
-| 位移結構 | 4；每個位移 0.01 Å |
-| 最大 background force component | 5.573×10⁻⁷ eV/Å |
-| 新舊 displaced-force 最大差 | 5.706×10⁻¹³ eV/Å |
-| 新舊 displaced-force RMS 差 | 1.636×10⁻¹³ eV/Å |
-| 新舊頻率最大絕對差 | 2.690×10⁻⁶ meV |
-| 新舊頻率 RMS 差 | 5.252×10⁻⁸ meV |
-| 歷史／重現最低頻率 | −1.636×10⁻⁶／−2.309×10⁻⁶ meV（皆為數值零） |
-| 歷史／重現 Γ–Z 最大 branch span | 5.705606／5.705606 meV |
-| 執行時間／maximum RSS | 25.59 s／717,044 KiB（約 700 MiB） |
-
-結果可判定為成功重現。完整 machine-readable 指標在 `phonon/output_reproduction_4x4/reproduction_metrics.json`；新 YAML、單獨頻譜與新舊疊圖都位於同一 output 目錄，沒有覆寫歷史 YAML。
-
-物理上，finite displacement 是以小位移後的 restoring forces 建立二階力常數；其本徵值給出聲子頻率。常見錯誤包括錯用未弛豫 POSCAR、忘記扣背景力、XML 和 SparseX 分離、THz/meV 混用，以及把 2×2×2 smoke test 誤當正式 4×4×4 結果。
+**為什麼需要這些步驟？** 有限位移方法透過位移與回復力求出二階力常數；結構未平衡、忘記扣除背景力、超胞或頻率單位不一致，都可能使聲子計算結果不同。
 
 ## 第 2 關：計算 Phonon DOS 與振動熱力學
 
-輸入是第 1 關產生且已通過 reload 測試的
-`phonon/output_reproduction_4x4/csc_ver_reproduced_4x4.yaml`。它已含力常數；本步不載入 GAP、不產生位移，也不重算 forces。
-
-歷史 `thermal.py` 的設定是 30×30×30 mesh、停用 mesh symmetry、0–1000 K、每 10 K 一點。請在前述 `U0J0_pretest/` 工作目錄執行：
+使用第 1 關產生的 `phonon/output_reproduction_4x4/csc_ver_reproduced_4x4.yaml`。本步驟直接讀取已計算的力常數，**不必重新計算 GAP 原子力**。
 
 ```bash
 python phonon/thermal.py \
@@ -270,7 +210,7 @@ python phonon/thermal.py \
   --output-dir phonon/output_thermal_reproduction
 ```
 
-預期輸出：
+預期產生：
 
 ```text
 phonon/output_thermal_reproduction/
@@ -280,30 +220,15 @@ phonon/output_thermal_reproduction/
 └── thermal_metrics.json
 ```
 
-物理意義：DOS 顯示各頻率可用的振動模態密度；`Cv` 是定容振動熱容；entropy 是振動熵；Helmholtz free energy 是諧振近似下的振動自由能。Phonopy 回傳的熱容與熵為每 mole primitive cell 的 J/K/mol，自由能為 kJ/mol primitive cell。本例 primitive cell 有 4 atoms，因此以 `Cv/(4R)` 轉成每原子的 `kB`。
+**物理意義：** Phonon DOS 描述振動模態的頻率分布；定容熱容 `C_V` 在高溫下應趨近 **3 k_B/atom**（Dulong–Petit 極限）。熵和振動 Helmholtz 自由能則描述聲子對熱力學的貢獻。
 
-2026-10-10 實測：
+Phonopy 的熱容／熵單位是 J/(K·mol primitive cell)，自由能是 kJ/mol primitive cell。本例 primitive cell 有 4 個原子，所以使用 `C_V/(4R)` 換算為 `k_B/atom`。如果將頻率軸從 THz 轉為 meV，DOS 縱軸也必須同步由 `1/THz` 換算為 `1/meV`。
 
-| 溫度 | Cv (kB/atom) | Entropy (J/K/mol cell) | Free energy (kJ/mol cell) |
-| ---: | ---: | ---: | ---: |
-| 0 K | 0 | 0 | 16.44416 |
-| 300 K | 2.67444 | 110.88212 | 0.14077 |
-| 1000 K | 2.96790 | 225.85146 | −125.00357 |
-
-1000 K 的 `Cv` 已達 `3kB/atom` 的 98.93%，符合 Dulong–Petit 高溫極限。和歷史 YAML 在相同 grid 重算後，Cv、entropy、free energy 的最大差分別為 `1.77×10⁻¹¹ J/K/mol`、`4.12×10⁻¹¹ J/K/mol`、`3.75×10⁻¹¹ kJ/mol`。
-
-新舊圖的 DOS 峰位及三條熱力學曲線形狀一致。歷史圖沒有保存原始數據，而且舊腳本將 THz 頻率軸換成 meV 時沒有把 DOS 高度由 `1/THz` 同步換成 `1/meV`；新 CSV 與新圖使用一致的 meV／`1/meV`，所以 DOS 峰高會與歷史圖相差固定的換算因子，不能做像素高度比較。
-
-常見錯誤：
-
-- `force constants are missing`：輸入 YAML 不是第 2 關的 self-contained YAML，或保存時沒有包含 force constants。
-- output 已存在：腳本刻意拒絕覆寫；改用新的 `--output-dir`。
-- 記憶體或時間明顯上升：先確認沒有誤把 mesh 寫成 supercell 大小；30³ 是 q-point mesh，不是 30³ 原子超胞。
-- NumPy 1.26 沒有 `np.trapezoid`：教學腳本已使用相容的 `np.trapz`。
+常見錯誤：輸入 YAML 缺少力常數、輸出目錄已存在，或將 `30×30×30` 的 q-point mesh 誤認為原子超胞大小。
 
 ## 第 3 關：與 DFT 參考聲子比較
 
-必要輸入有三項：新 GAP YAML、`phonon/ground_truth.yaml`，以及它所需的 `phonon/reference_dft/FORCE_CONSTANTS`。只複製 DFT YAML 不足以重建 DFT 曲線。
+需要新產生的 GAP YAML，以及 `phonon/ground_truth.yaml` 和 `phonon/reference_dft/FORCE_CONSTANTS`。DFT YAML **必須搭配 FORCE_CONSTANTS** 才能重建這組參考聲子。
 
 ```bash
 python phonon/compare_phonons.py \
@@ -313,7 +238,7 @@ python phonon/compare_phonons.py \
   --output-dir phonon/output_dft_gap_comparison
 ```
 
-預期輸出：
+預期產生：
 
 ```text
 phonon/output_dft_gap_comparison/
@@ -322,28 +247,11 @@ phonon/output_dft_gap_comparison/
 └── comparison_metrics.json
 ```
 
-腳本會在計算差值前確認兩者都是 4×4×4、Fe/Se 數量與順序一致、q-points 完全相同，並統一用 VASP→THz factor 後轉成 meV。路徑為 Γ–X–M–Γ–Z–R–A–Z，每段 100 點；連接點在相鄰兩段各保留一次，因此陣列是 700×12。
+本例使用 **Γ–X–M–Γ–Z–R–A–Z**，每段 100 點，共 700 個 q-points、12 條聲子分支，頻率統一為 meV；下方差值一律定義為 **GAP − DFT**。
 
-| 指標 | 結果 |
-| --- | ---: |
-| 逐排序分支 MAE | 1.62477 meV |
-| 逐排序分支 RMSE | 2.11048 meV |
-| 最大絕對差 | 6.17267 meV |
-| 最大差位置 | Γ，zero-based branch 9；GAP−DFT = −6.17267 meV |
-| 新 GAP 對歷史 GAP 最大差 | 2.68963×10⁻⁶ meV |
+請注意：這組歷史 DFT 與 GAP 的 relaxed geometry 不完全相同；程式的 MAE／RMSE 是依各 q-point 的升頻分支 index 比較，未透過 eigenvector overlap 做模態配對。因此它適合當作教學上的頻譜比較，不能直接視為同一結構上的純位能精度。
 
-新圖與歷史 `comparison_ground_truth_csc.png` 的曲線形狀一致；歷史圖沒有保存 band 數據，因此以保存的 DFT force constants 和歷史 GAP YAML 重新計算作數值核對。舊圖下方程式實際畫的是 `csc−DFT`，但文字曾標為 `DFT−csc`；新圖明確定義為 `GAP−DFT`。
-
-這個 MAE/RMSE 是每個 q-point 依升頻排序後的 branch index 直接相比。簡併點、能帶交叉或 avoided crossing 附近，同一 index 不一定代表相同本徵向量；若要做嚴格模態對應，還需要 eigenvector overlap，這裡沒有假裝已完成該分析。另外 DFT 與 GAP 的晶胞並不完全相同：最大晶格分量差 `0.16924 Å`，最大 wrapped fractional-coordinate 差 `0.007742`，所以本圖是 pre-test 模型比較，不是同一幾何上的純 force-model 誤差。
-
-常見錯誤：
-
-- 找不到 `FORCE_CONSTANTS`：DFT YAML 不含足以獨立重建曲線的力常數；兩者要一起提供。
-- branch shape 不是 700×12：檢查是否用了相同四原子 cell、路徑與每段 100 點。
-- 頻率整體相差約 4.1357 倍：THz 與 meV 混用；腳本統一在最後乘 `4.135667696 meV/THz`。
-- 圖的差值正負和歷史圖相反：先讀 y 軸定義；本教學一律用 `GAP−DFT`。
-
-歷史圖保留作 provenance：
+歷史圖可以作為繪圖參考：
 
 ![歷史 DFT/GAP 聲子比較](results/phonon_comparison_historical.png)
 
@@ -387,120 +295,56 @@ gap={
 - `sparse_separate_file=T` 將 sparse coordinates 寫在 XML 旁的獨立檔案；移動模型時必須連同它們一起移動。
 - `do_copy_at_file=F` 表示不把整份 74-frame XYZ 內嵌進 XML。
 
-### 4.2 環境與安全 preflight
+### 4.2 訓練自己的 GAP
 
-本機已驗證的 training binary：
-
-```text
-gap_fit    QUIP v0.10.2-dirty, linux_x86_64_gfortran
-compiled   2026-02-23 15:27:34
-SHA-256    48427389f82adb94fa6257dec0e3a45fd54b926077f99c046c14304a219b0bb1
-Python     3.10.19（只供後續驗證）
-NumPy      1.26.4
-ASE        3.27/3.28 系列
-f90wrap    0.3.0
-```
-
-先執行不訓練的預檢：
+已在上方「環境」說明所需的 `gap_fit`、QUIP 和 Python binding；這裡直接開始操作。請先確認輸入與輸出設定無誤：
 
 ```bash
-command -v gap_fit
-bash -n training/train_gap.sh
-OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 \
-  bash training/train_gap.sh --check-only
+bash training/train_gap.sh --check-only
 ```
 
-預期最後一行為：
+此指令**不會開始訓練**，會確認 `gap_fit`、74-frame XYZ 的 SHA-256、所需函式庫及 `training/output/` 狀態。如果出現 `gap_fit not found`，請先載入 QUIP；如果 SHA-256 不符，不要改用另一組 440-frame 資料。
 
-```text
-PASS: training preflight only; gap_fit was not started.
-```
-
-preflight 會確認：`gap_fit` 可執行且動態函式庫齊全、輸入 SHA-256 是指定的 74-frame 檔、`training/output/` 不存在或為空，並印出唯一的輸入與輸出絕對路徑。它不建立 output，也不呼叫 `gap_fit`。
-
-這台機器有一個重要的 MPI 相容性陷阱：`gap_fit` 的 RPATH 固定連到 atom_sim conda environment 的 Open MPI 4.1.6，但一般 PATH 上的 `mpirun` 是 Open MPI 5.0.2。不要混用它們。這個小型訓練直接啟動一個 `gap_fit` process 即可，不使用 `mpirun`。Python/quippy 驗證也應使用和 QUIP build 相容的 atom_sim environment。
-
-常見 preflight 錯誤：
-
-- `gap_fit not found`：載入正確 QUIP environment，或設定 `GAP_FIT_BIN=/absolute/path/to/gap_fit`。
-- `training-data SHA-256 mismatch`：資料不是保存的 74-frame 版本；不要改指向上一層 440-frame 資料。
-- `non-empty output directory`：上一次可能已完成或留下部分輸出；把整個 `training/output/` 改名保存，不要混合兩次 run。
-- `shared-library dependencies` 顯示 `not found`：QUIP binary 和目前 compiler/MPI runtime 不相容，先修正 environment，不要硬跑。
-
-### 4.3 正式訓練
-
-取得資源核准後，請在前述 `U0J0_pretest/` 工作目錄執行：
+確認共享伺服器的計算資源可用後，從教學工作目錄執行：
 
 ```bash
 export OMP_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export NUMEXPR_NUM_THREADS=1
+
 bash training/train_gap.sh
 ```
 
-本次正式資源量測使用下列受限版本；`time` 的檔案先放 `/tmp`，避免腳本把它誤認為既有 output：
-
-```bash
-resource_log=$(mktemp /tmp/u0j0_gap_fit_resource.XXXXXX)
-timeout 600s bash -c \
-  'ulimit -v 2097152; exec /usr/bin/time -v -o "$1" bash training/train_gap.sh' \
-  _ "$resource_log"
-mv "$resource_log" training/output/resource_usage.txt
-```
-
-腳本只允許全新的空 output。`train_gap.sh` 會建立 metadata、log、新 XML 與 SparseX；驗證腳本另寫 JSON。`resource_usage*.txt` 是用 `/usr/bin/time` 包住命令時的量測紀錄，`retraining_report.json` 則是本次測試摘要，並非 `gap_fit` 自動產物：
+此範例直接啟動**單一 `gap_fit` process，不使用 `mpirun`**，避免不同 Open MPI 版本混用。訓練後會建立：
 
 ```text
-training/output/run_metadata.txt
-training/output/train_gap.log
-training/output/csc_ver_retrained.xml
-training/output/csc_ver_retrained.xml.sparseX.*
-training/output/resource_usage.txt
-training/output/validation_resource_usage.txt
-training/output/validation_metrics.json
-training/output/retraining_report.json
+training/output/
+├── csc_ver_retrained.xml
+├── csc_ver_retrained.xml.sparseX.*
+├── train_gap.log
+└── run_metadata.txt
 ```
 
-`model/csc_ver.xml` 與原始 9 個 SparseX 不在輸出路徑內，也受 `checksums.sha256` 監控。若 output 中已有任何檔案，腳本就拒絕執行。失敗的 run 可能留下 partial XML、SparseX 或 log；保留它們除錯並把整個目錄改名，不能直接混著重跑。
+`training/output/` 必須不存在或為空；腳本會拒絕在已有檔案的目錄內混合重跑。若訓練中斷，請先保存原輸出、換一個空目錄再執行，**不要覆寫原始 `model/csc_ver.xml`**。
 
-此資料只有 74 個 energy observations、2,368 個 atomic environments。2026-10-10 實測限制為 **1 CPU、2 GiB、600 秒**，直接啟動一個 process、不用 mpirun；訓練成功耗時 7.16 秒、maximum RSS 63,024 KiB、無 swap、exit code 0。QUIP 自己估計 linear-system peak 約 46 MB，實際 RSS 仍以 `/usr/bin/time -v` 為準。
+有些 species channel 因訓練資料較少，QUIP 可能把 `n_sparse` 自動降至實際可用數量；這類 warning 不一定代表訓練失敗，應先檢查 log 與模型能否正常載入。
 
-Log 中有三個預期 warning：Se–Se 二體 channel 只有 3 個可用點，所以 sparse 數由 50 降為 3；兩個稀少 Se-centered 三體 channel 分別只有 7、8 點，所以由 200 降為 7、8。這正好對應歷史模型的 SparseX 大小，不是 fitting failure，也沒有為了消除 warning 改參數。
+### 4.3 檢查新模型
 
-### 4.4 新模型驗證
-
-訓練成功後先跑 74-frame 行為檢查：
+重新訓練完成後，檢查模型是否可載入，以及能量、原子力是否皆為有限值：
 
 ```bash
-PYTHONPATH="$QUIP_PYTHON_BUILD" \
-  python training/validate_retrained_model.py
+python training/validate_retrained_model.py
 ```
 
-它會同時載入歷史與新模型，確認全部 74 筆 energy 及 `(74,32,3)` forces 都是 finite，並輸出：
+若 Python 的 `quippy` 必須透過自建 QUIP binding 載入，請先設定第 1 關介紹的 `PYTHONPATH`。報告會存為 `training/output/validation_metrics.json`，包含新模型的訓練能量誤差，以及新舊模型在相同結構上的能量與力差異。
 
-```text
-training/output/validation_metrics.json
-```
-
-報告包含新模型對 74 個 energy labels 的 MAE/RMSE/max、新舊模型 energy 差、新舊模型 force-component 差，以及 frame 0 重複推論的一致性。這些 energy residual 是 **in-sample training error**，不能當泛化誤差；資料完全沒有 force labels，因此 force 只能做新舊行為比較，不能宣稱對 DFT force 的 accuracy。
-
-歷史模型的低成本 baseline 已量測：74-frame total-energy MAE `5.665×10⁻⁵ eV`、RMSE `1.157×10⁻⁴ eV`、最大差 `5.259×10⁻⁴ eV`，所有 energy／forces finite。新模型不必和舊 XML 逐 byte 相同；應記錄 QUIP binary SHA、training-data SHA、log 與 SparseX，確認 energy residual 在合理量級，再誠實報告新舊 force 差異。若差異顯著，先檢查 QUIP/BLAS 版本、random seed 與 sparse selection，而不是私自改參數讓結果變好看。
-
-2026-10-10 的實際驗證結果：
-
-| 指標 | MAE | RMSE | 最大絕對差 |
-| --- | ---: | ---: | ---: |
-| 新模型 − training energy label (eV/config) | 5.688×10⁻⁵ | 1.163×10⁻⁴ | 5.286×10⁻⁴ |
-| 新模型 − training energy label (eV/atom) | 1.778×10⁻⁶ | 3.635×10⁻⁶ | 1.652×10⁻⁵ |
-| 新模型 − 歷史模型 energy (eV/config) | 2.603×10⁻⁷ | 7.528×10⁻⁷ | 4.171×10⁻⁶ |
-| 新模型 − 歷史模型 force components (eV/Å) | 9.983×10⁻⁵ | 3.487×10⁻⁴ | 3.428×10⁻³ |
-
-新舊模型的 74×32×3 forces 與全部 energies 都是 finite；frame 0 重複推論的 energy 與最大 force-component 差皆為 0。新 XML 可由 quippy 載入，引用的 9 個 SparseX 全部存在且 XML 內嵌 MD5 全數吻合。驗證耗時 4.38 秒、maximum RSS 110,480 KiB、exit code 0。
+**注意：** 這些能量誤差是 *training-set residual*，不是獨立測試集精度。資料沒有 DFT 力標記，所以新舊模型的力差也不能稱為 DFT force accuracy。若新模型與歷史模型不完全一致，先檢查 QUIP 版本、訓練紀錄及 SparseX，不需追求 XML 逐 byte 相同。
 
 ## 第 5 關：使用自己訓練的 GAP 重新計算聲子
 
-必要輸入是第 4 關產生的 `training/output/csc_ver_retrained.xml`、它引用的 9 個新 SparseX，以及保存歷史 relaxed unit cell／位移資料的 `phonon/csc_ver.yaml`。腳本不做 relaxation，會先核對 4×4×4、0.01 Å 位移與歷史 dataset 完全一致，再計算 perfect-cell 背景力、四個 displaced supercells、compact force constants 和相同 q-path：
+第 4 關產生 `training/output/csc_ver_retrained.xml` 與九個新 SparseX 後，就可以把這個**新模型**用在與歷史相同的 relaxed unit cell、4×4×4 supercell、0.01 Å 位移及 Phonopy 設定：
 
 ```bash
 python phonon/reproduce_historical_4x4.py \
@@ -508,7 +352,7 @@ python phonon/reproduce_historical_4x4.py \
   --output-dir phonon/output_retrained_model_4x4
 ```
 
-預期輸出：
+預期產生：
 
 ```text
 phonon/output_retrained_model_4x4/
@@ -518,37 +362,11 @@ phonon/output_retrained_model_4x4/
 └── reproduction_metrics.json
 ```
 
-2026-10-10 實測使用 1 CPU、2 GiB 上限與 300 秒 timeout：
-
-| 指標 | 結果 |
-| --- | ---: |
-| 位移結構／原子數 | 4／256 atoms |
-| 背景力最大分量 | 4.854×10⁻⁴ eV/Å |
-| 新舊聲子 MAE | 0.003869 meV |
-| 新舊聲子 RMSE | 0.004713 meV |
-| 新舊聲子最大差 | 0.012616 meV |
-| 歷史／重訓模型最低頻率 | −1.636×10⁻⁶／−9.605×10⁻⁷ meV |
-| 低於 −0.1 meV 的頻率值 | 0／0 |
-| Wall time／maximum RSS | 19.84 秒／716,104 KiB |
-
-負的數值只在約 `10⁻⁶ meV` 的 acoustic numerical zero，沒有實質虛頻。新舊曲線在圖上重合；可重生的 16.5 MB YAML 不納入 Git，數值報告與比較圖保存於 `results/retrained_phonon_metrics.json` 和 `results/retrained_vs_historical_phonons.png`。
+比較重訓模型與歷史模型的聲子曲線，留意是否出現新的明顯虛頻，以及各聲子分支是否保持相似。輸出 JSON 可用於定量比對，但不要求不同版本的 XML、SparseX 完全相同。
 
 ![歷史 GAP 與重訓 GAP 的聲子比較](results/retrained_vs_historical_phonons.png)
 
-物理意義是檢查「相同資料與設定重新訓練」是否保持二階力常數和聲子行為，而不是要求 XML 或 SparseX 逐 byte 相同。常見錯誤包括只複製 XML、使用 POSCAR 取代歷史 YAML cell、對既有 output 覆寫，以及把 `10⁻⁶ meV` 的數值零誤判為虛頻。若差異明顯，應如實記錄 QUIP/BLAS、random seed、SparseX 與 training log，不可私自調參後只保留較好結果。
-
-## 資源預估與執行順序
-
-工作狀態與建議順序：
-
-1. 保存模型的 2×2×2、skip-relax Phonopy smoke test：**已完成**；1 CPU，15.96 秒，maximum RSS 169.97 MiB。
-2. 歷史 relaxed cell 的 4×4×4 重算（不含 relaxation）：**已完成**；1 CPU，25.59 秒，maximum RSS 約 700 MiB。
-3. YAML thermal 重算：**已完成**；1 CPU，42.70 秒，maximum RSS 639,028 KiB（約 624 MiB）。
-4. DFT／GAP comparison：**已完成**；1 CPU，24.27 秒，maximum RSS 622,212 KiB（約 608 MiB）。
-5. 74-frame GAP retraining：**已完成**；單一 process、1 CPU、7.16 秒、maximum RSS 63,024 KiB、exit code 0。74-frame validation 另耗時 4.38 秒、maximum RSS 110,480 KiB。
-6. 重訓模型的 4×4×4 聲子：**已完成**；1 CPU、19.84 秒、maximum RSS 716,104 KiB，300 秒內正常結束。
-
-先完成既有模型的 Phonopy，再開始重新訓練，避免同時引入模型與流程兩種變因。
+**到這裡就完成一次完整的 energy-only GAP → Phonopy 工作流程。** 原始訓練資料和模型不會因這些操作被覆寫。
 
 ## 結果判讀
 
