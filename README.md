@@ -1,82 +1,80 @@
-# THLee Lab｜Energy-only 機器學習原子間位能（MLIP）
+# CCU QUIP／MLIP Tutorial｜FeSe 與 Si 實作教學
 
-本儲存庫整理國立中正大學 THLee Lab 使用**僅含能量標記（energy-only）**的參考資料，訓練及分析機器學習原子間位能（Machine-Learned Interatomic Potentials, MLIPs）之研究範例。包含 **FeSe**（VASP／DFT+gRISB、GAP／QUIP、Phonopy）及 **Si**（MACE 訓練範例、GAP 分析腳本）。
+本儲存庫整理國立中正大學（CCU）THLee Lab 的**機器學習原子間位能**（Machine-Learned Interatomic Potential, MLIP）研究範例，讓初次接觸 **QUIP／GAP、ASE 與 Phonopy** 的同學有可參考的程式、資料及操作說明。除了 FeSe 的完整流程，也收錄 Si 的 GAP 分子動力學、模型比較與 MACE 訓練指令。
 
-> **專案狀態：研究用範例，持續整理中。** U=J=0 的 74-frame GAP→Phonopy 教材已附完整資料、歷史模型與可執行腳本，並完成端到端驗證；儲存庫內其他範例仍可能依賴實驗室環境或外部 DFT 結果。本專案中的不同計算方法及圖稿需按各自設定判讀。
+**建議先從 FeSe 的 [U=J=0 五關教學](FeSe/VASP/QUIP/U0J0_pretest/README.md) 開始。** 這部分已保存訓練資料、GAP 模型、聲子參考資料及實際執行過的腳本。Si 的範例仍需要額外準備模型或訓練資料，請依各自 README 使用。
 
-## 研究概念
+## 教學導覽
 
-一般 MLIP 可使用能量、力、應力等參考資料。本研究著重探討：**只利用總能量訓練的位能，能否描述結構弛豫、聲子與振動熱力學性質？**
+| 範例 | 可以學到什麼 | 建議入口 |
+| --- | --- | --- |
+| **FeSe：完整 GAP → Phonopy** | 讀取 energy-only XYZ、使用與重新訓練 GAP、以預測力計算聲子、DOS 和熱力學性質 | [FeSe U0J0 教學](FeSe/VASP/QUIP/U0J0_pretest/README.md) |
+| **FeSe：資料準備與其他研究程式** | ASE 生成 strain／rattle／shear、VASP／CSC 能量擷取、其他 QUIP 設定與聲子工具 | [FeSe/VASP/](FeSe/VASP/README.md) |
+| **Si：GAP 模型應用** | 使用 ASE＋QUIP 執行矽的 NVT 分子動力學，並比較模型與 DFT 的能量／力／應力 | [Si 教學](Si/README.md) |
+| **Si：MACE energy-only 微調** | 使用 MACE foundation model 的訓練指令，了解資料、權重與參數設定 | [Si/MACE/](Si/MACE/README.md) |
 
-對於可微分的位能模型，原子受力可由預測能量對原子位置求導得到：
+## 核心觀念：Energy-only 也能計算原子力
 
-$$\mathbf F_i=-\nabla_{\mathbf R_i}E_{\mathrm{MLIP}}.$$
+一般 MLIP 可以用能量、原子力與應力作為訓練標記。本專案的 energy-only 範例**僅以參考總能量監督訓練**；但模型仍可由預測能量對原子位置的負梯度得到原子力：
 
-因此「energy-only 訓練」**不代表**後續聲子計算不使用力；其差別在於訓練時不直接採用 DFT 力／應力作為監督標記。
+\[
+\mathbf{F}_i=-\nabla_{\mathbf{R}_i}E_{\mathrm{MLIP}}.
+\]
 
-## 目錄導航
+因此，**energy-only 不等於後續計算不使用力**。例如 Phonopy 就需要模型預測的位移原子力，才能建立二階力常數並求得聲子頻率。
 
-| 路徑 | 主要內容 |
-| --- | --- |
-| [FeSe/VASP/](FeSe/VASP/) | VASP／DFT+gRISB 參考資料、ASE 結構生成、GAP 訓練、聲子與熱性質工作流程 |
-| [FeSe/VASP/ASE/](FeSe/VASP/ASE/) | strain、rattle、shear、phonon displacement、SCF/CSC 能量擷取 |
-| [FeSe/VASP/QUIP/](FeSe/VASP/QUIP/) | GAP／QUIP 訓練指令、能量資料集與結構弛豫 |
-| [FeSe/VASP/QUIP/U0J0_pretest/](FeSe/VASP/QUIP/U0J0_pretest/) | 已驗證的 74-frame energy-only GAP、4×4×4 Phonopy、熱性質與 DFT 比較五關教材 |
-| [FeSe/VASP/phonopy/](FeSe/VASP/phonopy/) | 聲子頻譜、主動學習、比較及熱力學 |
-| [Si/](Si/) | Si 分子動力學、RMSE、MACE 訓練範例 |
+請注意：**GAP／QUIP 與 MACE 是不同的模型框架**，模型檔案和 ASE calculator 不可直接混用。本儲存庫以 GAP／QUIP 為主要入門主題，MACE 為另外收錄的 Si 範例。
 
-**目錄結構備註：** FeSe 原本的資料已集中移至 `FeSe/VASP/`；各子目錄中既有相對執行路徑原則上保留，但由舊路徑啟動的外部腳本需自行更新。
+## FeSe｜從能量資料到聲子與熱力學
 
-## FeSe 工作流程
+<details>
+<summary>工作流程</summary>
 
-~~~mermaid
-flowchart LR
-    A["ASE 生成應變／位移結構"] --> B["VASP / DFT(+gRISB) 計算能量"]
-    B --> C["擷取 extended XYZ"]
-    C --> D["QUIP / GAP energy-only 訓練"]
-    D --> E["結構弛豫與 Phonopy 聲子計算"]
-    E --> F["與參考結果比較"]
-    F --> G["選取高誤差模態、追加資料"]
-    G --> B
-~~~
+```text
+ASE 產生不同結構
+       ↓
+DFT／CSC 計算參考能量
+       ↓
+extended XYZ（結構 + energy）
+       ↓
+QUIP gap_fit（energy-only）
+       ↓
+GAP 預測能量與原子力
+       ↓
+Phonopy 聲子色散、DOS、Cv、Entropy、Free Energy
+```
 
-資料夾中提供 `4×4×2` FeSe 超胞之 extended XYZ 範例。已直接統計目前 `FeSe/VASP/QUIP/energy_only_dataset.xyz`，共有 **440 筆構型（每筆 128 顆原子，且皆具 energy 標記）**。這是 GitHub 現有資料集的數量，**不是**下方兩張結果圖使用的 74 筆資料。更詳細的輸入、參數與限制請參閱 [FeSe/VASP/README.md](FeSe/VASP/README.md)。
+</details>
 
-## FeSe 初步測試：U = J = 0，74 筆訓練紀錄
+已整理的 **U=J=0 pre-test** 使用 74 筆 FeSe 總能量紀錄（每筆 32 顆原子，但只有 **59 個不同幾何**），訓練 2-body＋3-body GAP；教材包含原始模型、重新訓練、4×4×4 聲子重現及與 DFT 的比較。相關指令請直接參考 [完整教學](FeSe/VASP/QUIP/U0J0_pretest/README.md)。
 
-**給新進學弟的實作入口：** [FeSe 74 筆 energy-only GAP → Phonopy 入門教學](FeSe/VASP/QUIP/U0J0_pretest/)。教材依序涵蓋既有模型聲子、振動熱力學、DFT/GAP 比較、74-frame 重訓與新模型聲子；原始 XYZ、歷史 XML＋9 個 SparseX、Phonopy／DFT 輸入與可執行腳本均已納入並通過低成本端到端測試。
+下列圖片是歷史示例，保留作為學習與比較的參考。
 
-這兩張圖為 **pre-test（初步可行性測試）**，使用 **74 筆 Charge-Self-Consistent（CSC，電荷自洽）計算的 FeSe 總能量紀錄（59 個不同幾何構型）**作為訓練標記，透過 **QUIP/GAP 進行 energy-only 訓練**，再利用模型預測力與 **Phonopy** 求得聲子及振動熱力學性質。**CSC 是訓練能量的來源，而不是另一種 MLIP。**
+### 聲子色散：DFT 與 energy-only GAP
 
-本次測試設定為 **U = 0、J = 0**，尚未加入有限 Hubbard U 和 Hund J 所代表的局域強關聯修正。因此這些結果僅能展示本工作流程在此基準條件下的可行性，**不能當成已描述 FeSe 強關聯效應的證據**。
+![FeSe U=J=0 的 DFT／GAP 聲子色散](FeSe/VASP/QUIP/U0J0_pretest/results/phonon_comparison_historical.png)
 
-### 聲子色散：DFT 基準與 CSC-energy-trained GAP
+藍色虛線是 DFT 參考聲子，紅色實線（歷史圖例標為 CSC）是以 CSC 總能量訓練的 GAP，**再透過 Phonopy 計算**的結果，並非直接的 CSC 聲子。這是 U=J=0 的流程示範，**不代表已驗證 FeSe 有限 U／J 的強關聯效應**。兩組結果的 relaxed geometry 並非完全相同，不宜將差異直接解讀成相同結構上的模型誤差。
 
-![FeSe U=J=0 pre-test 聲子色散](FeSe/VASP/QUIP/U0J0_pretest/results/phonon_comparison_historical.png)
+### Phonon DOS 與振動熱力學
 
-圖中**藍色虛線（DFT）**是參考聲子結果，**紅色實線（圖例 CSC）**是以 CSC 的 74 筆總能量訓練之 **GAP** 所預測的聲子色散，經 **Phonopy** 計算。歷史圖的差值標籤與實際程式正負號不一致；新教材明確採 `GAP−DFT`。整體色散趨勢相近，但部分聲子分支仍有數 meV 級差異；這不是獨立驗證集精度，且兩曲線使用的 relaxed geometry 不完全相同。
+![FeSe U=J=0 的 Phonon DOS 與熱力學性質](FeSe/VASP/QUIP/U0J0_pretest/results/thermal_properties_historical.png)
 
-### Phonon DOS 與熱力學性質
+可利用 Phonopy 由聲子求出振動態密度（DOS）、定容熱容（`C_V`）、熵及 Helmholtz 自由能。高溫熱容趨近 `3 k_B/atom` 是一項物理一致性檢查，但不能取代與獨立 DFT 或實驗資料的定量驗證。
 
-![FeSe U=J=0 pre-test 振動熱力學性質](FeSe/VASP/QUIP/U0J0_pretest/results/thermal_properties_historical.png)
+**資料不要混用：** [U0J0 pre-test](FeSe/VASP/QUIP/U0J0_pretest/) 的 `csc_data_74.xyz` 是 **74 筆／每筆 32 原子**；上層 [QUIP](FeSe/VASP/QUIP/) 的 `energy_only_dataset.xyz` 是另外一組 **440 筆／每筆 128 原子**，訓練指令和模型描述符均不同。
 
-圖中呈現以該次 74 筆 CSC 能量資料訓練之 GAP，配合 Phonopy 得到的聲子 DOS、定容熱容、熵及 Helmholtz 自由能。熱容在高溫趨近 **3 k_B/atom**（Dulong–Petit 極限），可作為物理一致性檢查，**不等於**已與 DFT 或實驗完成定量比對。
+## Si｜GAP 與 MACE 的獨立範例
 
-> **重現性提醒：** U0J0 教材使用獨立保存的 `csc_data_74.xyz`（74 筆、每筆 32 原子，59 個不同幾何）與對應模型。上一層的 `energy_only_dataset.xyz` 是另一組 **440 筆、每筆 128 原子**的資料；兩者不可混用。74-frame 的 energy MAE/RMSE 是訓練集殘差，不是獨立驗證精度。
+[Si/](Si/README.md) 目前提供三種用途：使用 GAP 進行矽晶體的 NVT 分子動力學、以參考資料計算 GAP 的能量／力／應力比較圖，以及使用 **MACE foundation model** 微調的 energy-only 訓練指令。
 
-## Si 相關程式
+Si 的 GAP 與 MACE 範例**不是一套已串接並驗證的完整流程**；部分模型權重及 XYZ 沒有收錄。請先閱讀 [Si README](Si/README.md)，再依各範例準備必要輸入，避免將 MACE 權重誤當成 GAP XML。
 
-[Si/MACE/](Si/MACE/) 提供 MACE 的 energy-only 權重設定與 foundation model 微調指令；[Si/MD.py](Si/MD.py) 及 [Si/RMSE.py](Si/RMSE.py) 使用的則是 **GAP／QUIP**。這些腳本是分開的範例，不能把 MACE 模型直接當作 GAP XML 使用。Si 的部分資料／訓練模型未隨 repo 一起提供。
+## 環境與注意事項
 
-## 執行環境與重現性
+依範例可能需要 Python、NumPy、[ASE](https://ase-lib.org/)、[QUIP／quippy](https://github.com/libAtoms/QUIP)、[Phonopy](https://phonopy.github.io/phonopy/)、Matplotlib、[MACE](https://github.com/ACEsuit/mace)，以及 VASP／DFT+gRISB 或 GPU／MPI 環境。**不是每個範例都需要安裝所有軟體**，以各子目錄 README 的說明為準。
 
-依任務可能需要 Python 3、NumPy、Matplotlib、[ASE](https://ase-lib.org/)、[Phonopy](https://phonopy.github.io/phonopy/)、[QUIP／quippy](https://github.com/libAtoms/QUIP)、[MACE](https://github.com/ACEsuit/mace)，以及產生參考資料時使用的 VASP、gRISB 與 MPI 環境。
-
-- `create_xyz.py` 對 `scf/`、`csc/` 資料夾及特定收斂訊息有格式假設。
-- 儲存庫內較早的範例仍可能使用硬編碼模型檔名、POSCAR/CONTCAR 或本機路徑；U0J0 教材已改用 repository 內相對路徑與可指定的 output 目錄。
-- 僅提交程式與少量示範資料，不代表訓練權重、所有 DFT 輸出或軟體授權均已提供。
-- U0J0 的代表性圖像、輸入與運算條件已核對；其他研究範例仍需依各子目錄 README 判讀。
-
-## 授權與引用
-
-本儲存庫目前未附獨立 LICENSE；請勿直接視為已授權任何再散布或商用用途。使用 ASE、QUIP/GAP、Phonopy、MACE、VASP 或 gRISB 時請遵循各自授權及原始論文的引用要求。
+- FeSe U0J0 的原始資料、模型與主要計算流程已通過重現測試；其他舊研究腳本可能需要補充輸入檔、修正路徑或依環境調整。
+- energy-only 訓練資料上的低誤差屬於 *in-sample* 表現，不能直接代表對未知結構的預測能力。
+- 本儲存庫不提供 VASP 的 `POTCAR`、大型計算暫存檔或無權再散布的軟體。
+- 目前未附獨立 LICENSE；使用或再散布程式／資料前，請確認適用的授權與各方法的引用要求。
