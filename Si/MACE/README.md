@@ -12,8 +12,10 @@
 ## 需要自行準備
 
 - 相容版本的 MACE、PyTorch 和 GPU/CPU 環境。
-- `train_smart.xyz`、`test_smart.xyz`（原資料未隨 repo 提供）。
+- [../train_smart.xyz](../train_smart.xyz) 和 [../test_smart.xyz](../test_smart.xyz) 已收錄，分別對應 `--train_file` 和 `--valid_file`。`test_smart.xyz` 在目前指令中是驗證集，而非與模型選擇無關的最終測試集。
 - 指令指定的 foundation model 檔，例如 `mace_mp.model` 或 `mace_mp_f32.model`。
+
+兩份指令預設從執行目錄讀取 XYZ；若在 `Si/MACE/` 內執行，需將檔案參數改為 `../train_smart.xyz`、`../test_smart.xyz`，或在 `Si/` 執行並將指令與模型路徑設定正確。真正的未知結構評估仍需要額外的獨立 holdout 資料。
 
 下載與安裝請參閱 [MACE 官方專案](https://github.com/ACEsuit/mace)，並核對 foundation model 的授權、模型版本及能量參考定義。
 
