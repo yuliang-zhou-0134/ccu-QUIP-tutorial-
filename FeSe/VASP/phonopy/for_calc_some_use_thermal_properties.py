@@ -115,8 +115,8 @@ def main():
     
     # 2. 數據轉換
     # THz -> meV
-    THZ_TO_INV_CM = 4.136
-    frequencies_cm = frequencies * THZ_TO_INV_CM
+    THZ_TO_MEV = 4.135667696
+    frequencies_mev = frequencies * THZ_TO_MEV
     
     # Heat Capacity 正規化：換算成 "每顆原子有幾個 kB" (無因次，或單位為 kB)
     # 公式: Cv_per_atom_in_kB = Cv_total / (n_atoms * R)
@@ -146,12 +146,12 @@ def main():
 
     # --- (a) Phonon DOS ---
     ax = axes[0, 0]
-    ax.plot(frequencies_cm, dos_values, 'k-', linewidth=1.0)
-    ax.fill_between(frequencies_cm, dos_values, color='silver', alpha=0.5)
+    ax.plot(frequencies_mev, dos_values, 'k-', linewidth=1.0)
+    ax.fill_between(frequencies_mev, dos_values, color='silver', alpha=0.5)
     ax.set_xlabel('Frequency (meV)', fontsize=SIZE_LABEL)
     ax.set_ylabel('DOS', fontsize=SIZE_LABEL)
     ax.set_title('(a) Phonon DOS', fontsize=SIZE_TITLE, loc='left', fontweight='bold')
-    ax.set_xlim(0, max(frequencies_cm)*1.05)
+    ax.set_xlim(0, max(frequencies_mev)*1.05)
     ax.set_ylim(bottom=0)
     
     # --- (b) Heat Capacity (重點修改！) ---
@@ -187,9 +187,9 @@ def main():
     ax.set_title('(d) Helmholtz Free Energy', fontsize=SIZE_TITLE, loc='left', fontweight='bold')
     ax.set_xlim(0, t_max)
     
-    plt.show()
     filename = 'phonon_thermodynamics_3R.png'
     plt.savefig(filename, dpi=300)
+    plt.close(fig)
     print(f"圖表已生成: {filename}")
 
 if __name__ == "__main__":

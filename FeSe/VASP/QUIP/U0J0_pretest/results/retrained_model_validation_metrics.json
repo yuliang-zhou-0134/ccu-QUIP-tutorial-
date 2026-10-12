@@ -1,0 +1,36 @@
+{
+  "frames": 74,
+  "atoms_per_frame": 32,
+  "energy_unit": "eV/configuration",
+  "force_unit": "eV/angstrom",
+  "all_old_energies_and_forces_finite": true,
+  "all_new_energies_and_forces_finite": true,
+  "old_minus_reference_energy": {
+    "mae": 5.664892541142615e-05,
+    "rmse": 0.00011567219452203045,
+    "max_abs": 0.000525885078019428
+  },
+  "new_minus_reference_energy": {
+    "mae": 5.6884833482498025e-05,
+    "rmse": 0.00011632302177835886,
+    "max_abs": 0.0005286032319986589
+  },
+  "new_minus_reference_energy_per_atom": {
+    "mae": 1.7776510463280633e-06,
+    "rmse": 3.6350944305737145e-06,
+    "max_abs": 1.651885099995809e-05
+  },
+  "new_minus_old_energy": {
+    "mae": 2.6028993255061544e-07,
+    "rmse": 7.527663908436689e-07,
+    "max_abs": 4.171075516978817e-06
+  },
+  "new_minus_old_force_components": {
+    "mae": 9.983407382305793e-05,
+    "rmse": 0.0003487362649144005,
+    "max_abs": 0.0034276519324962784
+  },
+  "new_model_repeat_frame0_energy_abs_difference": 0.0,
+  "new_model_repeat_frame0_force_max_abs_difference": 0.0,
+  "interpretation": "Energy residuals are in-sample because the 74 energy labels are the training set. Forces have no reference labels and are compared only between the new and historical energy-only GAPs."
+}

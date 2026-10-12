@@ -8,6 +8,7 @@ from ase.build import sort
 # ==========================================================
 num_samples = 50
 displacement_stdev = 0.04  # Å
+base_seed = 42  # 可重現；每個 task 使用不同的 seed
 
 print("正在讀取初始 POSCAR...")
 
@@ -20,6 +21,17 @@ print(f"成功建立超胞！總共有 {len(supercell)} 顆原子。")
 
 # 清除 constraint
 supercell.set_constraint()
+
+# 避免重新執行時意外覆寫已完成的 SCF/CSC 計算結果
+existing_tasks = [
+    f"task_{i:03d}" for i in range(1, num_samples + 1)
+    if os.path.exists(f"task_{i:03d}")
+]
+if existing_tasks:
+    raise FileExistsError(
+        f"已有 {len(existing_tasks)} 個目標任務資料夾（例如 {existing_tasks[0]}）。"
+        "請在新的工作目錄執行，以免覆寫既有計算。"
+    )
 
 # ==========================================================
 # 要複製的檔案
@@ -52,8 +64,9 @@ for i in range(1, num_samples + 1):
 
     atoms_new = supercell.copy()
 
-    # 加入隨機位移
-    atoms_new.rattle(stdev=displacement_stdev)
+    # 不同 task 使用不同 seed；同一 base_seed 則可重現整批結構
+    seed = base_seed + i - 1
+    atoms_new.rattle(stdev=displacement_stdev, seed=seed)
 
     task_dir = f"task_{i:03d}"
     scf_dir = os.path.join(task_dir, "scf")
@@ -99,6 +112,6 @@ for i in range(1, num_samples + 1):
         else:
             print(f"⚠ 找不到 {src}")
 
-    print(f"完成 {task_dir}")
+    print(f"完成 {task_dir}（seed={seed}）")
 
 print("\n🎉 所有 rattle 結構建立完成！")

@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.DS_Store
+
+# Common VASP scratch/large outputs (keep tracked files intact)
+WAVECAR
+CHGCAR
+CHG
+AECCAR*
+vasprun.xml
+vaspout.h5
+OUTCAR
+OSZICAR
+XDATCAR
+DOSCAR
+PROCAR
+EIGENVAL
+
+# Local trajectories and scratch data
+*.traj
+*.db
+opt.log
+nohup.out
+
+# Local model/experiment output paths are intentionally not broadly ignored:
+# document and review any trained GAP XML before adding to Git.
+
+# Reproducible U0J0 tutorial outputs (inputs and compact evidence stay tracked)
+FeSe/VASP/QUIP/U0J0_pretest/phonon/output*/
+FeSe/VASP/QUIP/U0J0_pretest/training/output/
+FeSe/VASP/QUIP/U0J0_pretest/data/*.idx
