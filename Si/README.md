@@ -1,6 +1,6 @@
 # Si｜GAP 分子動力學、模型比較與 MACE 訓練
 
-這個資料夾收錄矽（Si）的三個入門範例。請先區分 **QUIP／GAP** 和 **MACE**：它們都是機器學習原子間位能框架，但模型格式、訓練方式與 ASE calculator 不相同。以下程式目前屬於可參考的研究腳本，**尚未像 FeSe U0J0 那樣提供完整模型與端到端重現驗證**。
+這個資料夾收錄矽（Si）的三個入門範例，另提供 `train_smart.xyz` 與 `test_smart.xyz` 作為 MACE 訓練與驗證資料。請先區分 **QUIP／GAP** 和 **MACE**：它們都是機器學習原子間位能框架，但模型格式、訓練方式與 ASE calculator 不相同。以下程式目前屬於可參考的研究腳本，**尚未像 FeSe U0J0 那樣提供完整模型與端到端重現驗證**。
 
 ## 檔案導覽
 
@@ -9,6 +9,25 @@
 | [MD.py](MD.py) | 從 Si 晶體執行 Langevin NVT 分子動力學 | GAP／QUIP |
 | [RMSE.py](RMSE.py) | 比較參考資料與 GAP 的能量、原子力及應力，繪製 parity plots | GAP／QUIP |
 | [MACE/](MACE/README.md) | 示範使用 MACE foundation model 微調 energy-only 模型 | MACE |
+
+## Si XYZ 資料與資料集劃分
+
+| 檔案 | 角色 | 用途 |
+| --- | --- | --- |
+| [train_smart.xyz](train_smart.xyz) | 訓練集 | MACE 的 `--train_file` |
+| [test_smart.xyz](test_smart.xyz) | **驗證集**（檔名雖為 test） | 目前 MACE 指令的 `--valid_file` |
+
+兩份都是 extended XYZ。已檢查到 `test_smart.xyz` 的資料欄位包含晶格、座標、`energy`、`forces` 和 `stress`；訓練集也應在執行前用 ASE 檢查標記與單位是否一致。MACE 範例將 forces／virials 的 loss 權重設為 0，因此訓練主要使用能量標記，**不代表檔案必須移除 forces／stress**。
+
+`test_smart.xyz` 目前被訓練指令用來監控驗證誤差及可能的模型選擇，**不能再把同一份資料稱為完全獨立的最終測試集**。若需要宣稱對未知 Si 結構的泛化能力，請另準備未參與訓練、early stopping 和調參的 holdout 資料。
+
+可以從 repository 根目錄執行下列唯讀檢查（需要 ASE、NumPy）：
+
+```bash
+python Si/check_datasets.py
+```
+
+這個腳本檢查 XYZ 是否可讀、能量是否有限，以及訓練／驗證集是否存在**相同原子順序的重複幾何**；它不是對旋轉、平移、原子排列或晶體對稱性都不變的完整去重工具。正式報告請記錄資料來源、DFT 設定、能量／力／應力單位與資料切分方法。
 
 ## 1. GAP 分子動力學：MD.py
 
