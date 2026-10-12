@@ -95,9 +95,24 @@ python RMSE.py
 
 目前的 test_smart.xyz 被指定為訓練過程的 validation file，**不是獨立的 holdout test**；建議再核對資料來源與幾何重複情況。
 
-MP0指令 使用 MACE-MP-0 float64；沒有MP0 檔名具有誤導性，它仍載入 float32 的預訓練 foundation model，並非從零訓練。兩個範例都不適用於直接載入 QUIP／GAP XML。
+`MP0指令` 使用 MACE-MP-0 float64；`沒有MP0` 檔名具有誤導性，它仍載入 float32 的預訓練 foundation model，並非從零訓練。兩個範例都不適用於直接載入 QUIP／GAP XML。
+
+## 4. Si 晶格熱導率：已完成的 Phono3py 示範
+
+同一份 MACE-MP-0 Stage Two checkpoint 已配合 Phono3py 計算 300 K q-mesh 敏感度、100–1000 K 熱導率曲線，結果與重現程式見 [MACE/README.md](MACE/README.md#晶格熱導率phono3py)。
+
+本例使用 MACE 弛豫後的 diamond Si conventional 晶格常數 5.474834 Å、2×2×2 conventional supercell（64 atoms）、0.03 Å 位移、Phono3py 單模 RTA（無 isotope／boundary scattering）。19³ q-mesh 下 300 K 的計算值約 166.725 W/(m·K)，15³ 與 19³ 約差 3.75%。**這是固定 fc2／fc3 下的網格敏感度檢查，尚非超晶胞、位移量或散射模型的完整收斂驗證。**
+
+## 5. Si GAP／QUIP 選做練習（不提供現成結果）
+
+現有 [MD.py](MD.py) 和 [RMSE.py](RMSE.py) 示範使用 quippy/ASE 載入 **GAP XML** 後執行 MD 或預測比較；但 repository **沒有** `GAP_Si_Final.xml`（及其 SparseX）與 `si_training_easy.xyz`，因此它們是**需要自行準備輸入的範例，不是可直接跑完的完整教學**。
+
+希望練習 Si GAP 訓練的讀者，可自行選擇合法可用的 Si 參考結構與 DFT labels、QUIP 描述符、訓練參數及評估切分，再用獨立資料評估。現有 [FeSe GAP 訓練教學](../FeSe/VASP/QUIP/U0J0_pretest/README.md) 可用來學習 `gap_fit` 的流程，但 FeSe 的元素參考能量與描述符參數**不能不經檢查就直接套用到 Si**。
+
+**這一部分是自由實作／選做題，不宣稱曾完成 Si GAP 的獨立驗證，也不附沒有可追溯來源的舊圖或 RMSE。** 若未來要比較 GAP 與 MACE，兩者必須使用一致的參考資料、評估指標及獨立的資料切分。
+
 ## 下一步
 
-Si 的 QUIP／GAP 已有 MD.py 與 RMSE.py 範例，暫時**不需要再複製一整套 QUIP 版本**。若要做真正的 GAP vs MACE 比較，應先補上可合法分享的 GAP_Si_Final.xml（與必要 SparseX）、si_training_easy.xyz 的來源及兩模型一致的評估集。未知構型的能力仍需獨立 holdout 驗證。
+目前 MACE 訓練／驗證與 Phono3py 熱導率示範已有實際輸出；Si GAP／QUIP 則維持需自備模型與參考資料的選做題。若要比較兩種 MLIP 對未知構型的精度，仍需準備未參與訓練與調參的獨立 holdout；熱導率要提升至研究精度，還需超晶胞及散射模型的收斂檢查。
 
 如果想從完整資料與指令一步步操作，建議先學習已驗證的 [FeSe GAP → Phonopy 教學](../FeSe/VASP/QUIP/U0J0_pretest/README.md)。

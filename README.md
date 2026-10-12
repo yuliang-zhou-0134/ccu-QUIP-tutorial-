@@ -68,7 +68,7 @@ Phonopy 聲子色散、DOS、Cv、Entropy、Free Energy
 
 [Si/](Si/README.md) 目前提供三種用途：使用 GAP 進行矽晶體的 NVT 分子動力學、以參考資料計算 GAP 的能量／力／應力比較圖，以及使用 **MACE foundation model** 微調的 energy-only 訓練指令。
 
-Si 的 GAP 與 MACE 範例**不是一套已串接的完整流程**。MACE 的 [訓練／驗證 parity plots](Si/MACE/README.md) 與模型 SHA-256 已收錄，XYZ 也已提供；但 MACE 模型權重與 GAP Si XML 尚未收錄。請先閱讀 [Si README](Si/README.md)，勿把 MACE 權重誤當成 GAP XML。
+Si 的 GAP 與 MACE 範例**不是一套已串接的完整流程**。MACE 的 [訓練／驗證 parity plots 與 Si 熱導率](Si/MACE/README.md) 已收錄，XYZ 與模型 SHA-256 也已記錄；但 MACE 模型權重與 GAP Si XML 尚未收錄。**Si GAP／QUIP 目前是需要自行準備模型的選做範例，未提供模型或歷史誤差結果。** 請先閱讀 [Si README](Si/README.md)，勿把 MACE 權重誤當成 GAP XML。
 
 ## 環境與注意事項
 

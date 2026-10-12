@@ -47,6 +47,6 @@
     "Validation set is used during fine-tuning, not an independent holdout.",
     "Full symmetry-aware train-validation geometry overlap has not been checked.",
     "Foundation model is pretrained; this is not training from scratch.",
-    "Thermal-conductivity temperature scan is still running, excluded from this results file."
+    "Thermal conductivity and q-mesh sweep completed; see separate Si/MACE/results/thermal_metrics.json. Supercell and scattering-model convergence not established."
   ]
 }

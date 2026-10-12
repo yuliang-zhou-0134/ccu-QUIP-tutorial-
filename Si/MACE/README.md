@@ -55,6 +55,58 @@ python Si/MACE/evaluate_parity.py \
 
 這兩份是 Colab 指令，以 !python3 開頭；若在一般終端機執行請移除 !。模型與 XYZ 路徑是相對於執行目錄；原始資料在上一層 Si/，建議在 Si/ 執行或調整 --train_file 與 --valid_file。foundation model 的授權、版本及詳細安裝資訊見 [MACE 官方專案](https://github.com/ACEsuit/mace)。
 
-## 聲子與熱導率：仍在整理
+## 晶格熱導率（Phono3py）
 
-同一個 Stage Two checkpoint 已用於 Phonopy／Phono3py 的 Si 計算。不過新版熱導率 q-mesh／溫度掃描**還在進行**；目前不將舊版單一熱導率值視為收斂結果，也不混用不同晶格設定、模型或超胞。等到 Colab 完成掃描並確認輸出檔後，再收錄帶有模型 SHA、晶格、超胞、位移、q-mesh 與近似方法（RTA 等）的正式圖片。
+使用**上方同一份 `run-123_stagetwo.model` checkpoint**，以 Phono3py 計算 Si 三階力常數及晶格熱導率。這裡的圖直接擷取自已成功跑完的 Colab Notebook `MACE_for_Silicon_only_energy_r_max5 (5).ipynb`（Cell 20）；**不是以程式假造的圖，也不是舊版 5.587 Å 晶格的結果**。
+
+### 模型與物理設定
+
+| 項目 | 本次設定 |
+| --- | --- |
+| checkpoint SHA-256 | `929b2f5bf41f32f2eea1d0346e78a5c4f6d1d781d8167fa356b7ff87251ac549` |
+| Si conventional cubic a（模型弛豫） | 5.47483406 Å |
+| 對稱晶胞的最大 |F|／|stress| | 3.22×10⁻¹⁵ eV/Å／1.73×10⁻⁸ eV/Å³ |
+| fc2／fc3 supercell | 2×2×2 conventional（64 atoms） |
+| 位移大小及數量 | 0.03 Å，111 個位移構型 |
+| 晶格熱導率 | Phono3py 單模 RTA，三聲子散射 |
+| 未包含的散射 | isotope、boundary |
+| 300 K q-mesh | 11³、15³、19³ |
+| 溫度掃描 | 100–1000 K，19³ q-mesh |
+
+### 300 K q-mesh 敏感度
+
+![Si MACE-MP-0 RTA thermal conductivity q-mesh sensitivity](results/mesh_convergence_300K.png)
+
+| q-mesh | κxx = κyy = κzz（W/(m·K)） |
+| --- | ---: |
+| 11³ | 147.687 |
+| 15³ | 160.468 |
+| 19³ | **166.725** |
+
+15³ 到 19³ 的結果相差約 **3.75%**（以 19³ 作分母）。這只是**固定 2×2×2 超晶胞與相同 fc2／fc3 的 q-mesh 敏感度檢查**，不能稱為「整個熱導率已收斂」。單一模型的預測也不能當作獨立 DFT／實驗驗證。
+
+### 100–1000 K 熱導率
+
+![Si MACE-MP-0 RTA lattice thermal conductivity vs temperature](results/kappa_vs_temperature.png)
+
+| T (K) | κ (W/(m·K)) | T (K) | κ (W/(m·K)) |
+| ---: | ---: | ---: | ---: |
+| 100 | 1176.209 | 600 | 74.322 |
+| 200 | 298.748 | 700 | 63.046 |
+| 300 | 166.725 | 800 | 54.793 |
+| 400 | 117.023 | 900 | 48.479 |
+| 500 | 90.731 | 1000 | 43.486 |
+
+晶格熱導率是三個對角方向 (κxx+κyy+κzz)/3 的平均值。本例高度對稱，三方向計算結果相同；低溫數值尤其會對散射模型、q-mesh 和系統尺寸敏感，**不應直接將 100 K 預測宣稱為實驗準確值**。
+
+### 重現與輸出
+
+程式：[thermal_conductivity.py](thermal_conductivity.py)（擷取自**已實際成功執行**的 Cell 20；原始 Drive 路徑可於檔案開頭 `ROOT` 修改）。先安裝 MACE、ASE、Phonopy、Phono3py 並備妥可信 checkpoint；這是計算程式，會重新產生力常數，**不是訓練 MACE 的程式**。
+
+原 Notebook 顯示結果儲存至：
+
+`/content/drive/MyDrive/xyz_for_training/Si_thermal_results/run_20261012_155035/`
+
+該次程式會產出 q-mesh／溫度 CSV、兩張 PNG、含力常數的 `phono3py_params_with_fc.yaml` 與 `settings.json`。本 repository 收錄**兩張已保存於 Notebook 的圖片與依輸出整理的 [thermal_metrics.json](results/thermal_metrics.json)**，但沒有取得或上傳原本 Drive 裡的完整 CSV／force-constants YAML；要完全重現力常數可用上述腳本再計算。
+
+**限制：** 尚未執行超晶胞尺寸、位移量、LBTE（非 RTA）或與實驗／獨立 DFT 的完整交叉驗證。本結果可作為工作流程示範，不能當成已達研究精度的材料常數。
