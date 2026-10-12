@@ -82,19 +82,22 @@ python RMSE.py
 
 這份程式是**分析範例，尚未提供完整資料與實際執行的驗證結果**。如要改用 energy-only 資料，建議先只比較 energy，再視參考標記的可用性增加力／應力欄位。
 
-## 3. MACE energy-only 模型微調
+## 3. MACE-MP-0 energy-only 微調（已有驗證結果）
 
-[MACE/](MACE/README.md) 包含兩份指令：
+[MACE 教學及原始 parity plots](MACE/README.md) 收錄已跑完的訓練／驗證分析、checkpoint SHA-256，以及 [重新評估程式](MACE/evaluate_parity.py)。
 
-- `MP0指令`：載入 `mace_mp.model` foundation model，並以能量為主要訓練目標。
-- `沒有MP0`：**檔名與實際設定不同**；目前仍載入 `mace_mp_f32.model`，因此也是 foundation-model fine-tuning，而非真正從零訓練。
+| 評估集 | 結構數 | Energy RMSE (meV/atom) | Force RMSE (meV/Å) | Stress RMSE (eV/Å³) |
+| --- | ---: | ---: | ---: | ---: |
+| Training：train_smart.xyz | 190 | 2.07 | 153.90 | 0.0025 |
+| Validation：test_smart.xyz | 22 | 3.10 | 162.28 | 0.0022 |
 
-兩份指令都把 force、virial 相關的 loss weights 設為 0；但是仍需相容的 MACE／PyTorch 環境、已收錄於 `Si/` 的 `train_smart.xyz`、`test_smart.xyz`，以及需自行準備的預訓練模型。這些 Colab 範例以 `!python3` 開頭；在一般終端機使用時請移除 `!`，並依當前 MACE 版本核對參數。
+結果使用 float64、r_max=5 Å 的 MACE-MP-0 energy-only 微調 Stage Two（SWA）模型。Force／Stress 的損失權重為 0，但 foundation model 已經過預訓練；不能把 force 預測完全歸功於本次 Si 能量微調。RMSE 分別取每筆能量/原子、所有力笛卡兒分量、ASE stress 六個 Voigt 分量計算。
 
-**MACE 微調產生的權重不能直接交給 `quippy.potential.Potential`**；需要使用適合 MACE 的 ASE calculator。
+目前的 test_smart.xyz 被指定為訓練過程的 validation file，**不是獨立的 holdout test**；建議再核對資料來源與幾何重複情況。
 
+MP0指令 使用 MACE-MP-0 float64；沒有MP0 檔名具有誤導性，它仍載入 float32 的預訓練 foundation model，並非從零訓練。兩個範例都不適用於直接載入 QUIP／GAP XML。
 ## 下一步
 
-建議先用現成、可正常載入的 GAP 模型熟悉 Si 的能量與力計算，再進行短時間 MD。若要評估模型對**未知結構**的準確度，應準備與訓練庫不同的 Si 構型，取得相同構型的參考 DFT 能量，再與模型預測值比較；只看訓練集 RMSE 不夠。
+Si 的 QUIP／GAP 已有 MD.py 與 RMSE.py 範例，暫時**不需要再複製一整套 QUIP 版本**。若要做真正的 GAP vs MACE 比較，應先補上可合法分享的 GAP_Si_Final.xml（與必要 SparseX）、si_training_easy.xyz 的來源及兩模型一致的評估集。未知構型的能力仍需獨立 holdout 驗證。
 
 如果想從完整資料與指令一步步操作，建議先學習已驗證的 [FeSe GAP → Phonopy 教學](../FeSe/VASP/QUIP/U0J0_pretest/README.md)。

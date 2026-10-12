@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "system": "Si",
+  "model": {
+    "foundation": "MACE-MP-0 (Medium)",
+    "filename": "Si_MACE_only_energy_r_max5_TRUE_BLIND_run-123_stagetwo.model",
+    "sha256": "929b2f5bf41f32f2eea1d0346e78a5c4f6d1d781d8167fa356b7ff87251ac549",
+    "weights_in_repository": false
+  },
+  "training": {
+    "mace_version": "0.3.14",
+    "dtype": "float64",
+    "r_max_angstrom": 5,
+    "max_epochs": 200,
+    "swa_start": 150,
+    "seed": 123,
+    "energy_weight": 10,
+    "forces_weight": 0,
+    "virials_weight": 0
+  },
+  "units": {
+    "energy": "meV/atom",
+    "force": "meV/Å",
+    "stress": "eV/Å³"
+  },
+  "datasets": {
+    "train": {
+      "path": "Si/train_smart.xyz",
+      "structures": 190,
+      "energy_rmse": 2.07,
+      "force_rmse": 153.9,
+      "stress_rmse": 0.0025
+    },
+    "validation": {
+      "path": "Si/test_smart.xyz",
+      "structures": 22,
+      "energy_rmse": 3.1,
+      "energy_rmse_more_digits": 3.0952,
+      "force_rmse": 162.28,
+      "force_rmse_more_digits": 162.2756,
+      "stress_rmse": 0.0022
+    }
+  },
+  "method": "Energy error normalized per atom; Force RMSE over all Cartesian components; Stress RMSE over ASE six Voigt stress components; force scatter optionally subsampled but RMSE not subsampled.",
+  "provenance": "User-provided MACE_for_Silicon_only_energy_r_max5 (3).ipynb, cells 17 and 18, checkpoint run-123_stagetwo.model",
+  "limitations": [
+    "Validation set is used during fine-tuning, not an independent holdout.",
+    "Full symmetry-aware train-validation geometry overlap has not been checked.",
+    "Foundation model is pretrained; this is not training from scratch.",
+    "Thermal-conductivity temperature scan is still running, excluded from this results file."
+  ]
+}

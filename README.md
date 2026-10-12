@@ -11,7 +11,7 @@
 | **FeSe：完整 GAP → Phonopy** | 讀取 energy-only XYZ、使用與重新訓練 GAP、以預測力計算聲子、DOS 和熱力學性質 | [FeSe U0J0 教學](FeSe/VASP/QUIP/U0J0_pretest/README.md) |
 | **FeSe：資料準備與其他研究程式** | ASE 生成 strain／rattle／shear、VASP／CSC 能量擷取、其他 QUIP 設定與聲子工具 | [FeSe/VASP/](FeSe/VASP/README.md) |
 | **Si：GAP 模型應用** | 使用 ASE＋QUIP 執行矽的 NVT 分子動力學，並比較模型與 DFT 的能量／力／應力 | [Si 教學](Si/README.md) |
-| **Si：MACE energy-only 微調** | 使用 MACE foundation model 的訓練指令，了解資料、權重與參數設定 | [Si/MACE/](Si/MACE/README.md) |
+| **Si：MACE-MP-0 energy-only 微調** | 190／22 筆資料、parity plots、RMSE 與模型 SHA-256 | [Si/MACE/](Si/MACE/README.md) |
 
 ## 核心觀念：Energy-only 也能計算原子力
 
@@ -68,7 +68,7 @@ Phonopy 聲子色散、DOS、Cv、Entropy、Free Energy
 
 [Si/](Si/README.md) 目前提供三種用途：使用 GAP 進行矽晶體的 NVT 分子動力學、以參考資料計算 GAP 的能量／力／應力比較圖，以及使用 **MACE foundation model** 微調的 energy-only 訓練指令。
 
-Si 的 GAP 與 MACE 範例**不是一套已串接並驗證的完整流程**；MACE 所需的 `train_smart.xyz`、`test_smart.xyz` 已收錄於 `Si/`，但預訓練權重及 GAP Si 模型尚未一併提供。請先閱讀 [Si README](Si/README.md)，再依各範例準備必要輸入，避免將 MACE 權重誤當成 GAP XML。
+Si 的 GAP 與 MACE 範例**不是一套已串接的完整流程**。MACE 的 [訓練／驗證 parity plots](Si/MACE/README.md) 與模型 SHA-256 已收錄，XYZ 也已提供；但 MACE 模型權重與 GAP Si XML 尚未收錄。請先閱讀 [Si README](Si/README.md)，勿把 MACE 權重誤當成 GAP XML。
 
 ## 環境與注意事項
 

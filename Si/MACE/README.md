@@ -1,22 +1,60 @@
-# MACE｜Si energy-only 訓練指令範例
+# Si｜MACE-MP-0 energy-only 微調與評估
 
-本資料夾提供在 Google Colab／GPU 環境中嘗試過的訓練指令。若於一般終端機執行，需移除 Colab 的 `!` 前綴，並備妥環境及資料檔。
+本範例使用預訓練 **MACE-MP-0（Medium）**，以 Si DFT 能量進行 **energy-only fine-tuning**。微調的 force／virial 損失權重設為零，但保留 DFT energy、forces、stress labels 供模型評估。請勿將 MACE checkpoint 用在 GAP／QUIP calculator。
 
-## 現有指令
+## 已驗證的結果
 
-- `MP0指令`：`--foundation_model="mace_mp.model"`，使用預訓練模型進行微調。現有設定採 `r_max=5.0`、`float64`、200 epochs。
-- `沒有MP0`：**檔名具有誤導性。** 目前內容仍設定 `--foundation_model="mace_mp_f32.model"`，因此也是**使用預訓練權重的微調示例**，並非真正的從零訓練。現有設定為 `float32`、100 epochs。
+| 項目 | 設定 |
+| --- | --- |
+| Foundation | mace_mp.model（MACE-MP-0） |
+| 訓練完成 checkpoint | Si_MACE_only_energy_r_max5_TRUE_BLIND_run-123_stagetwo.model |
+| SHA-256 | 929b2f5bf41f32f2eea1d0346e78a5c4f6d1d781d8167fa356b7ff87251ac549 |
+| 環境／精度 | MACE 0.3.14、float64 |
+| r_max | 5.0 Å |
+| 微調 | 200 epochs；SWA 從 epoch 150 開始；seed 123 |
+| Loss | Energy weight 10；force/virial（含 SWA）weight 0 |
+| Training | [train_smart.xyz](../train_smart.xyz)，190 個結構 |
+| Validation | [test_smart.xyz](../test_smart.xyz)，22 個結構 |
 
-兩份指令都將 `forces_weight`、`virials_weight` 及對應 SWA 權重設為零，以總能量作為主要訓練標記；`energy_weight` 等權重需配合資料及 MACE 版本檢查。
+Checkpoint 權重**未收錄於 repository**，但其名稱和 SHA-256 已記錄。另一份檔名沒有 run-123 的模型雖然檔案 SHA 不同，在 22 筆 validation 結構上的 energy／force 預測與 checkpoint 幾乎完全一致；本頁圖片改以訓練紀錄明確指定的 run-123 checkpoint 重新評估。
 
-## 需要自行準備
+| 評估集 | Energy RMSE | Force RMSE | Stress RMSE |
+| --- | ---: | ---: | ---: |
+| Training (190) | 2.07 meV/atom | 153.90 meV/Å | 0.0025 eV/Å³ |
+| Validation (22) | 3.10 meV/atom | 162.28 meV/Å | 0.0022 eV/Å³ |
 
-- 相容版本的 MACE、PyTorch 和 GPU/CPU 環境。
-- [../train_smart.xyz](../train_smart.xyz) 和 [../test_smart.xyz](../test_smart.xyz) 已收錄，分別對應 `--train_file` 和 `--valid_file`。`test_smart.xyz` 在目前指令中是驗證集，而非與模型選擇無關的最終測試集。
-- 指令指定的 foundation model 檔，例如 `mace_mp.model` 或 `mace_mp_f32.model`。
+### Validation：DFT vs MACE
 
-兩份指令預設從執行目錄讀取 XYZ；若在 `Si/MACE/` 內執行，需將檔案參數改為 `../train_smart.xyz`、`../test_smart.xyz`，或在 `Si/` 執行並將指令與模型路徑設定正確。真正的未知結構評估仍需要額外的獨立 holdout 資料。
+![Si MACE validation energy, force and stress parity](results/validation_parity.png)
 
-下載與安裝請參閱 [MACE 官方專案](https://github.com/ACEsuit/mace)，並核對 foundation model 的授權、模型版本及能量參考定義。
+### Training：DFT vs MACE
 
-> 如果真正要做**不使用 MP0、從頭訓練**的 MACE recipe，應另建立不含 `--foundation_model` 的版本，不要直接把目前 `沒有MP0` 當作從零訓練。
+![Si MACE training energy, force and stress parity](results/training_parity.png)
+
+圖片來自已完成的 Colab Notebook「MACE_for_Silicon_only_energy_r_max5 (3).ipynb」的兩個評估 cell；**不是示意圖**。Force 散點為最多 1000 個分量的繪圖抽樣，但圖上 RMSE 使用全部原子力分量。Stress 為 ASE get_stress() 的六維 Voigt 應力（eV/Å³），不是直接拿 virial 當 stress。
+
+**如何解讀：** 這不是「從零開始只用 Si energy 訓練」的模型，而是已有預訓練知識的 MACE-MP。test_smart.xyz 在訓練指令內是 validation file，**不是最終獨立 holdout**。train／validation 的完整資料來源與對稱等價去重尚未完成，因此不宜宣稱已證明未知結構的泛化能力。可先執行 repository 內的 python Si/check_datasets.py，檢查有序幾何是否重複；它不包含晶體對稱判別。
+
+可機讀的來源與數字見 [results/metrics.json](results/metrics.json)。
+
+## 重現 parity plots（無須再訓練）
+
+需要 ASE、NumPy、Matplotlib、PyTorch、MACE。模型請使用你自己訓練或可信來源的完整 checkpoint。從 repository 根目錄執行：
+
+~~~bash
+python Si/MACE/evaluate_parity.py \
+  --model /path/to/Si_MACE_only_energy_r_max5_TRUE_BLIND_run-123_stagetwo.model
+~~~
+
+程式會自動使用 CUDA 或 CPU；可用 --device cuda 或 --device cpu 指定。只需 validation 圖可加 --split validation。它先讀 DFT 參考值再安裝 MACECalculator，並固定 force 繪圖抽樣種子；新的 PNG 與 metrics.json 輸出於 Si/MACE/results/recomputed/，**不會覆寫此頁歷史圖**。
+
+## 兩份原始訓練指令
+
+- [MP0指令](MP0指令)：載入 mace_mp.model，float64、200 epochs、SWA 150；本頁主要實驗。
+- [沒有MP0](沒有MP0)：名稱具有誤導性；仍指定 mace_mp_f32.model，因此也是 foundation-model fine-tuning，而非從頭訓練（float32、100 epochs）。
+
+這兩份是 Colab 指令，以 !python3 開頭；若在一般終端機執行請移除 !。模型與 XYZ 路徑是相對於執行目錄；原始資料在上一層 Si/，建議在 Si/ 執行或調整 --train_file 與 --valid_file。foundation model 的授權、版本及詳細安裝資訊見 [MACE 官方專案](https://github.com/ACEsuit/mace)。
+
+## 聲子與熱導率：仍在整理
+
+同一個 Stage Two checkpoint 已用於 Phonopy／Phono3py 的 Si 計算。不過新版熱導率 q-mesh／溫度掃描**還在進行**；目前不將舊版單一熱導率值視為收斂結果，也不混用不同晶格設定、模型或超胞。等到 Colab 完成掃描並確認輸出檔後，再收錄帶有模型 SHA、晶格、超胞、位移、q-mesh 與近似方法（RTA 等）的正式圖片。
