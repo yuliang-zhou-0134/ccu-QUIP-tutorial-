@@ -2,7 +2,7 @@
 
 本儲存庫整理國立中正大學（CCU）THLee Lab 的**機器學習原子間位能**（Machine-Learned Interatomic Potential, MLIP）研究範例，讓初次接觸 **QUIP／GAP、ASE 與 Phonopy** 的同學有可參考的程式、資料及操作說明。除了 FeSe 的完整流程，也收錄 Si 的 GAP 分子動力學、模型比較與 MACE 訓練指令。
 
-**建議先從 FeSe 的 [U=J=0 五關教學](FeSe/VASP/QUIP/U0J0_pretest/README.md) 開始。** 這部分已保存訓練資料、GAP 模型、聲子參考資料及實際執行過的腳本。Si 的範例仍需要額外準備模型或訓練資料，請依各自 README 使用。
+**建議先從 FeSe 的 [U=J=0 五關教學](FeSe/VASP/QUIP/U0J0_pretest/README.md) 開始。** 這部分已保存訓練資料、GAP 模型、聲子參考資料及實際執行過的腳本。Si 的 MACE 訓練／驗證 XYZ 已提供，但模型權重與部分其他範例的輸入仍需自行準備，請依各自 README 使用。
 
 ## 教學導覽
 
@@ -68,7 +68,7 @@ Phonopy 聲子色散、DOS、Cv、Entropy、Free Energy
 
 [Si/](Si/README.md) 目前提供三種用途：使用 GAP 進行矽晶體的 NVT 分子動力學、以參考資料計算 GAP 的能量／力／應力比較圖，以及使用 **MACE foundation model** 微調的 energy-only 訓練指令。
 
-Si 的 GAP 與 MACE 範例**不是一套已串接並驗證的完整流程**；部分模型權重及 XYZ 沒有收錄。請先閱讀 [Si README](Si/README.md)，再依各範例準備必要輸入，避免將 MACE 權重誤當成 GAP XML。
+Si 的 GAP 與 MACE 範例**不是一套已串接並驗證的完整流程**；MACE 所需的 `train_smart.xyz`、`test_smart.xyz` 已收錄於 `Si/`，但預訓練權重及 GAP Si 模型尚未一併提供。請先閱讀 [Si README](Si/README.md)，再依各範例準備必要輸入，避免將 MACE 權重誤當成 GAP XML。
 
 ## 環境與注意事項
 
