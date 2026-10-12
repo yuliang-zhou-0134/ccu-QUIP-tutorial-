@@ -89,7 +89,7 @@ python RMSE.py
 - `MP0指令`：載入 `mace_mp.model` foundation model，並以能量為主要訓練目標。
 - `沒有MP0`：**檔名與實際設定不同**；目前仍載入 `mace_mp_f32.model`，因此也是 foundation-model fine-tuning，而非真正從零訓練。
 
-兩份指令都把 force、virial 相關的 loss weights 設為 0；但是仍需相容的 MACE／PyTorch 環境、`train_smart.xyz`、`test_smart.xyz` 與指定的預訓練模型。資料及模型檔目前並未完整收錄。這些 Colab 範例以 `!python3` 開頭；在一般終端機使用時請移除 `!`，並依當前 MACE 版本核對參數。
+兩份指令都把 force、virial 相關的 loss weights 設為 0；但是仍需相容的 MACE／PyTorch 環境、已收錄於 `Si/` 的 `train_smart.xyz`、`test_smart.xyz`，以及需自行準備的預訓練模型。這些 Colab 範例以 `!python3` 開頭；在一般終端機使用時請移除 `!`，並依當前 MACE 版本核對參數。
 
 **MACE 微調產生的權重不能直接交給 `quippy.potential.Potential`**；需要使用適合 MACE 的 ASE calculator。
 
