@@ -50,13 +50,14 @@ python FeSe/VASP/ASE/create_xyz.py /path/to/calculation_root \
 ![FeSe 振動熱力學性質](QUIP/U0J0_pretest/results/thermal_properties_historical.png)
 
 - 聲子圖圖例為 **DFT / CSC**。**CSC = Charge-Self-Consistent（電荷自洽）**，與 DFT+gRISB 流程相關，並非 GAP／QUIP 的縮寫。圖中的紅色 CSC 曲線已確認為使用 74 筆 CSC 能量資料進行 energy-only GAP 訓練，再以 Phonopy 計算的結果；藍色 DFT 為參考曲線。這組測試 U=J=0，尚未加入有限 U、J 的強關聯修正。
-- 熱性質圖包含 Phonon DOS、熱容、熵與自由能；熱容接近 3 \(k_B\)/atom 的高溫極限，僅提供物理一致性線索。
+- 熱性質圖同樣使用**74 筆 CSC 能量訓練的 GAP**，由 GAP 預測力經 Phonopy 得到 Phonon DOS、熱容、熵與 Helmholtz 自由能；這不是直接由 CSC 電子能量求得的熱性質。熱容接近 3 \(k_B\)/atom 的高溫極限，僅提供物理一致性線索。
 - 圖中實驗使用 `QUIP/U0J0_pretest/data/csc_data_74.xyz` 的 74 筆紀錄（59 個不同幾何），而不是 440-frame 資料；歷史 GAP XML、9 個 SparseX、訓練命令與 Phonopy/DFT 輸入均已保存並通過重現測試。
+- **歷史圖的計算版本：** 上述聲子比較與振動熱性質均源於先前的 74-frame CSC → GAP 工作流程，**不是教授後來更新 INCAR 等設定後重新計算的圖**。若要檢驗新版設定對聲子與熱性質的影響，需先在可比結構上重新取得參考資料，再另行計算與比較；本教材不聲稱已完成這項驗證。
 - 74-frame energy MAE/RMSE 是訓練集殘差，不是獨立驗證精度；新舊模型的 force 差也不是 DFT force accuracy。DFT/GAP 聲子比較使用不同 relaxed geometry，定量差值須連同此限制解讀。
 
 ## 5. 重要提醒
 
-**教授新版設定與研究程式：** 本目錄的 `INCAR_scf`、`INCAR_csc`、`plo.cfg` 與 `grisb_config.toml` 保留作為**先前研究的設定範例**，不代表教授目前的 DFT+ghostGA 標準設定。依作者取得的更新資訊，教授後續已調整 `INCAR`（包括改採 Fermi–Dirac 電子佔據方式）、`plo.cfg` 與 `main.py`；**新版檔案與 `main.py` 均未收錄於本 repository**。這不表示歷史設定一定有錯，只表示不同計算階段與程式版本不可直接混用。
+**教授新版設定與研究程式：** 本目錄的 `INCAR_scf`、`INCAR_csc`、`plo.cfg` 與 `grisb_config.toml` 保留作為**先前研究的設定範例**，不代表教授目前的 DFT+ghostGA 標準設定。依作者取得的更新資訊，教授後續已調整 `INCAR`（包括改採 Fermi–Dirac 電子佔據方式）、`plo.cfg` 與 `main.py`；**新版檔案與 `main.py` 均未收錄於本 repository**。依作者後續計算經驗，教授更新的設定能取得更佳的電子計算收斂表現；**這不表示歷史設定一定有錯，也不能直接推論新版下的聲子頻率更準確**。不同計算階段與程式版本不可直接混用。
 
 若要開始新的 DFT+ghostGA 計算，請**向指導教授取得並依其授權使用成套的最新範例**，確認 `INCAR` 的佔據方式與相關參數、`NBANDS`／`LOCPROJ`、`plo.cfg` 的 `BANDS`／`EWINDOW`／shell 定義，以及 ghostGA 程式版本彼此相容。**不要直接將單一新版參數覆蓋歷史輸入，也不要假設本頁列出的參數能重現教授的新結果。** 為避免公開未授權的研究程式，本教材只提供此版本提醒，不轉載新版 `main.py` 或設定檔。
 

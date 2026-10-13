@@ -48,7 +48,7 @@ Phonopy 聲子色散、DOS、Cv、Entropy、Free Energy
 
 已整理的 **U=J=0 pre-test** 使用 74 筆 FeSe 總能量紀錄（每筆 32 顆原子，但只有 **59 個不同幾何**），訓練 2-body＋3-body GAP；教材包含原始模型、重新訓練、4×4×4 聲子重現及與 DFT 的比較。相關指令請直接參考 [完整教學](FeSe/VASP/QUIP/U0J0_pretest/README.md)。
 
-下列圖片是歷史示例，保留作為學習與比較的參考。
+下列兩張圖片是**以 74 筆 CSC 總能量訓練 energy-only GAP，再使用 GAP 預測力與 Phonopy 得到的歷史結果**；聲子色散圖另與直接 DFT 計算的參考聲子比較，熱性質圖則來自同一類 GAP 聲子流程。**教授後續已更新 INCAR 等計算設定，以改善電子計算收斂表現；這些歷史圖不是依新版設定重新計算的結果**。新版設定請參閱 [FeSe/VASP 的提醒](FeSe/VASP/README.md#5-重要提醒)。
 
 ### 聲子色散：DFT 與 energy-only GAP
 

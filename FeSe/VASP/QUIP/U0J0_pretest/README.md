@@ -4,6 +4,8 @@
 
 > 這是 U=J=0 的流程教學，不是 FeSe 強關聯物理的定量驗證。歷史資料有 74 筆紀錄，但只有 **59 個不同幾何構型**；frames 33–48 是同一幾何的 16 次重複紀錄。為保留可追溯性，XYZ 與原始模型均原樣保留。
 
+> **歷史計算版本：** 本教材中的 DFT 與 GAP 聲子色散比較、GAP 振動熱性質，均對應當時以 **74 筆 CSC 能量訓練 GAP** 的工作流程，**不是教授後續更新 INCAR 等設定後重新計算的結果**。後續新版設定據作者經驗有更佳的電子計算收斂表現，但本教材沒有以新版重算聲子或證明其預測精度改善。新的 DFT+ghostGA 計算請參考 [FeSe/VASP 的最新版設定提醒](../../README.md#5-重要提醒)。
+
 ## 流程一覽
 
 ```text
@@ -56,7 +58,9 @@ U0J0_pretest/
 - `phonon/POSCAR`、`CONTCAR`：原始來源目錄中的起始與歷史弛豫結構。歷史 `plot_phonon.py` 是從 POSCAR 做 hydrostatic cell relaxation；新的 `run_gap_phonopy.py` 保留這個選擇。
 - `phonon/csc_ver.yaml`：歷史 GAP finite-displacement 資料，4×4×4 supercell。
 - `phonon/ground_truth.yaml` 加 `reference_dft/FORCE_CONSTANTS`：DFT 比較所需資料。只提供 YAML 不足以重建此 DFT 曲線，因此一併保存 FORCE_CONSTANTS。
-- `results/*_historical.png`：從研究資料夾原樣複製的歷史圖，不是本次重新計算的結果。
+- `results/phonon_comparison_historical.png`：以 74 筆 CSC 能量訓練 GAP，使用 GAP 預測力經 Phonopy 算出的聲子色散，與**直接 DFT 聲子**比較；歷史圖中紅線標作 CSC，實際為 CSC-trained GAP。
+- `results/thermal_properties_historical.png`：同一歷史 CSC-trained GAP／Phonopy 路線得到的 Phonon DOS、定容熱容、熵與 Helmholtz 自由能。
+- 以上均由研究資料夾保留的**歷史圖**，不是本次重新計算或教授新版 INCAR 的成果。
 - `checksums.sha256`：上述歷史輸入與輸出的 SHA-256，可用來確認沒有改動。
 
 不要混用上一層的 `energy_only_dataset.xyz`；它是另一組 440×128 資料，訓練設定也不同。
