@@ -28,7 +28,7 @@
 | `phonopy/compare.py` | 參考計算與 MLIP 預測聲子的繪圖腳本；需提供有效 Phonopy 結果 |
 | `phonopy/for_calc_some_use_thermal_properties.py` | 聲子 DOS、熱容、熵與自由能 |
 | `phonopy/phonopy_disp.yaml` | **位移構型資訊**，不是包含 force constants 的完整 reference phonon band 檔 |
-| `INCAR_scf`、`INCAR_csc`、`plo.cfg`、`grisb_config.toml` | VASP／DFT+gRISB 輸入設定 |
+| `INCAR_scf`、`INCAR_csc`、`plo.cfg`、`grisb_config.toml` | **歷史** VASP／DFT+gRISB 輸入設定；新計算請參閱下方版本提醒 |
 
 ## 3. 資料擷取範例
 
@@ -55,6 +55,10 @@ python FeSe/VASP/ASE/create_xyz.py /path/to/calculation_root \
 - 74-frame energy MAE/RMSE 是訓練集殘差，不是獨立驗證精度；新舊模型的 force 差也不是 DFT force accuracy。DFT/GAP 聲子比較使用不同 relaxed geometry，定量差值須連同此限制解讀。
 
 ## 5. 重要提醒
+
+**教授新版設定與研究程式：** 本目錄的 `INCAR_scf`、`INCAR_csc`、`plo.cfg` 與 `grisb_config.toml` 保留作為**先前研究的設定範例**，不代表教授目前的 DFT+ghostGA 標準設定。依作者取得的更新資訊，教授後續已調整 `INCAR`（包括改採 Fermi–Dirac 電子佔據方式）、`plo.cfg` 與 `main.py`；**新版檔案與 `main.py` 均未收錄於本 repository**。這不表示歷史設定一定有錯，只表示不同計算階段與程式版本不可直接混用。
+
+若要開始新的 DFT+ghostGA 計算，請**向指導教授取得並依其授權使用成套的最新範例**，確認 `INCAR` 的佔據方式與相關參數、`NBANDS`／`LOCPROJ`、`plo.cfg` 的 `BANDS`／`EWINDOW`／shell 定義，以及 ghostGA 程式版本彼此相容。**不要直接將單一新版參數覆蓋歷史輸入，也不要假設本頁列出的參數能重現教授的新結果。** 為避免公開未授權的研究程式，本教材只提供此版本提醒，不轉載新版 `main.py` 或設定檔。
 
 - 請核對輸入 POSCAR、超胞大小、cutoff 與 k-point 設定，不同腳本不一定相同。
 - VASP、gRISB 執行檔與 `POTCAR` 不收錄；若要產生新的 DFT 參考資料，使用者需自行準備合規軟體與授權資料。U0J0 教材本身不執行 VASP 或 DFT+gRISB。

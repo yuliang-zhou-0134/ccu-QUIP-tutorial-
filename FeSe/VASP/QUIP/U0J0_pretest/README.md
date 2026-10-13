@@ -118,6 +118,8 @@ PASS model: XML parses and all 9 referenced SparseX MD5 values match
 
 ## 第 1 關：使用現成 GAP 模型計算聲子
 
+### 1.1 驗證現成 GAP 模型
+
 必要輸入是 `model/csc_ver.xml`、XML 引用的 9 個同目錄 SparseX，以及歷史 relaxed cell 所在的 `phonon/csc_ver.yaml`。先以 32-atom frame 做最低成本的模型讀取測試：
 
 若 `quippy` 已安裝：
@@ -129,9 +131,11 @@ python scripts/model_smoke_test.py
 如果 QUIP binding 位於自建目錄，可將路徑由環境指定，不要寫死進腳本：
 
 ```bash
-export QUIP_PYTHON_BUILD=/path/to/QUIP/build/<QUIP_ARCH>
+export QUIP_PYTHON_BUILD=/path/to/QUIP/build/YOUR_QUIP_ARCH
 PYTHONPATH="$QUIP_PYTHON_BUILD" python scripts/model_smoke_test.py
 ```
+
+請將 `YOUR_QUIP_ARCH` 換成實際的 QUIP 編譯目錄名稱，勿直接使用範例路徑。
 
 常見錯誤：
 

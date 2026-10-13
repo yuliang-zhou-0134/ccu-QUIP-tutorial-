@@ -30,6 +30,6 @@ U0J0 的 `training/train_gap.sh` 已逐項還原歷史 XML command line，實測
 
 ## 未來工作：未知結構的能量預測
 
-目前尚未針對**未納入訓練資料的 FeSe 結構**進行獨立的能量預測驗證，相關計算有待補足。未來可使用修正後的 [ASE/rattle.py](../ASE/rattle.py) 產生與訓練資料不重複的隨機位移構型，再利用 GAP 預測其總能量。
+就本目錄的 **440-frame FeSe 資料範例**而言，目前尚未針對**未納入訓練資料的 FeSe 結構**進行獨立的能量預測驗證，相關計算有待補足。未來可使用修正後的 [ASE/rattle.py](../ASE/rattle.py) 產生與訓練資料不重複的隨機位移構型，再利用 GAP 預測其總能量。
 
 若要進一步評估模型對未知結構的準確度，仍需對**相同的新構型**計算 DFT 參考能量，與 GAP 預測值比較；僅取得 GAP 的預測能量，無法判斷誤差大小。產生測試資料時，也應避免與訓練集出現重複幾何。一般聲子腳本請參閱 [../phonopy/](../phonopy/)，完整的 GAP → Phonopy 入門流程請參閱 [U0J0_pretest/README.md](U0J0_pretest/README.md)。
