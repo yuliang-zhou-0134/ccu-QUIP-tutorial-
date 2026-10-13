@@ -17,6 +17,12 @@
 
 資料稽核另發現 Training 的第 21 與 35 號 frame（從 0 起算）在元素順序、cell、座標及全部 labels 都完全相同，因此 190 筆中有 189 個不同的有序幾何；實際 fitting 仍讀入 190 筆，等於讓該構型出現兩次。Training 與 Validation 之間沒有發現相同的有序幾何，但目前檢查不具旋轉、原子重排或晶體對稱不變性。
 
+## 參考資料的來源與適用範圍
+
+本教學使用 repository 已附的 `../train_smart.xyz` 與 `../test_smart.xyz`，不需要為了重現 GAP 訓練與 RMSE 而重新做 DFT。這 212 筆 Si 標記**可能出自 GPAW**（依作者回憶），但原始計算輸入與參數尚未保存於本 repository，不能據此確認泛函、cutoff、k-points、收斂條件或上游 stress convention；本頁 Stress RMSE 僅以目前 XYZ 的 ASE 應力定義進行一致評估。
+
+若要產生全新 Si 資料，可依研究需要使用 VASP、Quantum ESPRESSO（QE）或 GPAW，並自行驗證 DFT 收斂與標記一致性。**構型生成方法建議參考較完整的 [FeSe／ASE 範例](../../FeSe/VASP/ASE/README.md)**；其 `strain.py`、`rattle.py`、`shear.py` 和 `phonopy_disp.py` 可作為思路參考，但具有 FeSe／VASP 專用設定，不能直接當作 Si 或 QE 的即用程式。本教材不把舊 Si 結構生成腳本作為必要步驟。
+
 ## 目錄與環境
 
 ```text
@@ -105,4 +111,4 @@ Energy 先除以每個 frame 的原子數；force RMSE 使用所有笛卡兒分�
 
 ## 舊 GAP 範例不要混用
 
-`Si/MD.py` 與 `Si/RMSE.py` 是舊 `GAP_Si_Final.xml` 流程，該模型使用 energy 加上 force／virial-stress 相關監督；它不是本頁的 Energy-only 模型。本次沒有覆寫舊腳本、MACE 結果或 FeSe 資料，模型名稱與結果目錄也完全分開。
+`Si/MD.py` 與 `Si/RMSE.py` 是舊 `GAP_Si_Final.xml` 流程，該模型使用 energy 加上 force／virial-stress 相關監督；舊模型**未收錄於 repository**，因此舊腳本不能直接執行，也不能把它們當成新 Energy-only GAP 的示範。本次沒有覆寫舊腳本、MACE 結果或 FeSe 資料，模型名稱與結果目錄也完全分開。

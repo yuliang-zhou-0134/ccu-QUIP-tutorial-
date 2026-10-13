@@ -17,7 +17,13 @@
 | `test_smart.xyz` | Validation，22 個結構；含 energy、forces、stress |
 | [`GAP/`](GAP/README.md) | Si GAP Energy-only 資料準備、訓練、模型與實算結果 |
 | [`MACE/`](MACE/README.md) | MACE-MP Energy-only fine-tuning、parity plots 與 Phono3py |
-| [`MD.py`](MD.py)、[`RMSE.py`](RMSE.py) | 舊 `GAP_Si_Final.xml` 範例，保留但不屬於新 Energy-only 模型 |
+| [`MD.py`](MD.py)、[`RMSE.py`](RMSE.py) | 歷史腳本，依賴未收錄的舊 `GAP_Si_Final.xml`；不能直接當成新 Energy-only GAP 的範例執行 |
+
+## 原始資料與生成新構型
+
+這 212 筆 Si 結構的參考能量、原子力與應力**可能來自 GPAW**（依作者回憶）；目前 repository 未附當時的 GPAW 輸入檔與完整 DFT 計算紀錄，因此**尚無法核實使用的軟體、交換關聯泛函、截斷能、k-point 及收斂參數**。現有 XYZ 可供重現本頁 GAP／MACE 訓練與評估，但不足以從零重現上游 DFT 標記。不要將可能來源寫成已驗證的事實。
+
+如果要**另行建立一套新的 DFT 訓練資料**，可優先考慮自己熟悉且能保持設定一致的 VASP 或 Quantum ESPRESSO（QE）；GPAW 也可以用，方法可靠性取決於計算設定與收斂驗證，**不能僅因軟體名稱判定資料品質**。結構生成建議先參考較完整的 [FeSe/VASP/ASE 教學](../FeSe/VASP/ASE/README.md)（strain、rattle、shear、Phonopy 位移），不必再把舊 Si 結構生成腳本整理成主要教學。這些 FeSe 腳本含有 FeSe／VASP 專用的超胞、輸入路徑與輸出解析邏輯，轉用 Si、QE 或 GPAW 時必須調整結構、軟體輸入及 energy／forces／stress 擷取；**不是能直接套用的通用資料生成器**。
 
 `test_smart.xyz` 在兩條流程中都是 validation set，不是完全獨立的 holdout test。要研究未知構型的泛化能力，仍應另準備未參與訓練、選模與調參的 test set。
 

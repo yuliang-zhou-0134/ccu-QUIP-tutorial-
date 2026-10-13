@@ -1,8 +1,8 @@
 # CCU QUIP／MLIP Tutorial｜FeSe 與 Si 實作教學
 
-本儲存庫整理國立中正大學（CCU）THLee Lab 的**機器學習原子間位能**（Machine-Learned Interatomic Potential, MLIP）研究範例，讓初次接觸 **QUIP／GAP、ASE 與 Phonopy** 的同學有可參考的程式、資料及操作說明。除了 FeSe 的完整流程，也收錄 Si 的 GAP 分子動力學、模型比較與 MACE 訓練指令。
+本儲存庫整理國立中正大學（CCU）THLee Lab 的**機器學習原子間位能**（Machine-Learned Interatomic Potential, MLIP）研究範例，讓初次接觸 **QUIP／GAP、ASE 與 Phonopy** 的同學有可參考的程式、資料及操作說明。除了 FeSe 的完整流程，也收錄 Si 的 **GAP energy-only 訓練與驗證**、MACE-MP 微調及熱導率示範；Si 舊版 MD／RMSE 腳本另保留作為歷史參考。
 
-**建議先從 FeSe 的 [U=J=0 五關教學](FeSe/VASP/QUIP/U0J0_pretest/README.md) 開始。** 這部分已保存訓練資料、GAP 模型、聲子參考資料及實際執行過的腳本。Si 的 MACE 訓練／驗證 XYZ 已提供，但模型權重與部分其他範例的輸入仍需自行準備，請依各自 README 使用。
+**建議先從 FeSe 的 [U=J=0 五關教學](FeSe/VASP/QUIP/U0J0_pretest/README.md) 開始。** 這部分已保存訓練資料、GAP 模型、聲子參考資料及實際執行過的腳本。Si 的 GAP energy-only 模型（XML 與必要 SparseX）、訓練／驗證資料及 parity plots 均已收錄；MACE checkpoint 權重未收錄，請依各自 README 的說明使用。
 
 ## 教學導覽
 
@@ -10,7 +10,7 @@
 | --- | --- | --- |
 | **FeSe：完整 GAP → Phonopy** | 讀取 energy-only XYZ、使用與重新訓練 GAP、以預測力計算聲子、DOS 和熱力學性質 | [FeSe U0J0 教學](FeSe/VASP/QUIP/U0J0_pretest/README.md) |
 | **FeSe：資料準備與其他研究程式** | ASE 生成 strain／rattle／shear、VASP／CSC 能量擷取、其他 QUIP 設定與聲子工具 | [FeSe/VASP/](FeSe/VASP/README.md) |
-| **Si：GAP 模型應用** | 使用 ASE＋QUIP 執行矽的 NVT 分子動力學，並比較模型與 DFT 的能量／力／應力 | [Si 教學](Si/README.md) |
+| **Si：GAP energy-only** | 從 Si 能量資料訓練 GAP、載入完整模型、計算 Training／Validation 的 Energy／Force／Stress RMSE | [Si GAP 教學](Si/GAP/README.md) |
 | **Si：MACE-MP-0 energy-only 微調** | 190／22 筆資料、parity plots、RMSE 與模型 SHA-256 | [Si/MACE/](Si/MACE/README.md) |
 
 ## 核心觀念：Energy-only 也能計算原子力
@@ -66,9 +66,11 @@ Phonopy 聲子色散、DOS、Cv、Entropy、Free Energy
 
 ## Si｜GAP 與 MACE 的獨立範例
 
-[Si/](Si/README.md) 目前提供三種用途：使用 GAP 進行矽晶體的 NVT 分子動力學、以參考資料計算 GAP 的能量／力／應力比較圖，以及使用 **MACE foundation model** 微調的 energy-only 訓練指令。
+[Si/](Si/README.md) 提供兩條以相同 Si Training／Validation 資料切分進行的 MLIP 教學路線：[從頭訓練的 GAP energy-only](Si/GAP/README.md)，以及 [MACE-MP foundation model 的 energy-only fine-tuning](Si/MACE/README.md)。兩者均有實際 Energy／Force／Stress RMSE 與 parity plots，**但訓練起點不同，不能當成純架構的公平比較**。
 
-Si 的 GAP 與 MACE 範例**不是一套已串接的完整流程**。MACE 的 [訓練／驗證 parity plots 與 Si 熱導率](Si/MACE/README.md) 已收錄，XYZ 與模型 SHA-256 也已記錄；但 MACE 模型權重與 GAP Si XML 尚未收錄。**Si GAP／QUIP 目前是需要自行準備模型的選做範例，未提供模型或歷史誤差結果。** 請先閱讀 [Si README](Si/README.md)，勿把 MACE 權重誤當成 GAP XML。
+Si GAP 已收錄 XML、兩個必要 SparseX、資料準備與評估程式；MACE 的 checkpoint 權重尚未收錄，但已有 SHA-256 與重現說明。`Si/MD.py`、`Si/RMSE.py` 仍依賴**未收錄的舊版** `GAP_Si_Final.xml`，屬歷史參考，不是新 GAP 模型的可直接執行入口。
+
+Si 的 212 筆參考資料**可能**由 GPAW 計算（依作者回憶，尚缺原始計算輸入可核對）。若要建立新的 DFT 資料，可依研究環境選用 VASP、Quantum ESPRESSO 或其他適合的方法；構型生成建議參考較完整的 [FeSe／ASE 腳本](FeSe/VASP/ASE/README.md)，並依 Si 結構、目標軟體與資料標記自行調整，**不可原封不動套用 FeSe 專用流程**。
 
 ## 環境與注意事項
 
