@@ -21,9 +21,11 @@
 
 ## 原始資料與生成新構型
 
-這 212 筆 Si 結構的參考能量、原子力與應力**可能來自 GPAW**（依作者回憶）；目前 repository 未附當時的 GPAW 輸入檔與完整 DFT 計算紀錄，因此**尚無法核實使用的軟體、交換關聯泛函、截斷能、k-point 及收斂參數**。現有 XYZ 可供重現本頁 GAP／MACE 訓練與評估，但不足以從零重現上游 DFT 標記。不要將可能來源寫成已驗證的事實。
+這 212 筆 Si 結構的參考能量、原子力與應力使用 **GPAW** 產生（依作者確認，並與先前計畫書所載方法一致）。目前 repository **尚未附上當時的 GPAW 輸入檔與完整 DFT 計算紀錄**，因此交換關聯泛函、截斷能、k-point、收斂條件及上游 stress 定義等細節仍待核對。現有 XYZ 可供重現本頁 GAP／MACE 訓練與評估，但不足以從零重現上游 DFT 標記。
 
-如果要**另行建立一套新的 DFT 訓練資料**，可優先考慮自己熟悉且能保持設定一致的 VASP 或 Quantum ESPRESSO（QE）；GPAW 也可以用，方法可靠性取決於計算設定與收斂驗證，**不能僅因軟體名稱判定資料品質**。結構生成建議先參考較完整的 [FeSe/VASP/ASE 教學](../FeSe/VASP/ASE/README.md)（strain、rattle、shear、Phonopy 位移），不必再把舊 Si 結構生成腳本整理成主要教學。這些 FeSe 腳本含有 FeSe／VASP 專用的超胞、輸入路徑與輸出解析邏輯，轉用 Si、QE 或 GPAW 時必須調整結構、軟體輸入及 energy／forces／stress 擷取；**不是能直接套用的通用資料生成器**。
+如果要**另行建立新的 DFT 訓練資料**，可依研究目的選擇 GPAW、VASP 或 Quantum ESPRESSO（QE）。作者較傾向在後續涉及 **ghostGA** 的工作選擇 VASP／QE，**原因是教授現有的 ghostGA 流程有 VASP、QE 路線，未提供 GPAW 介接，並非 GPAW 的計算方法或結果品質較差**。無論使用何種 DFT 軟體，都要確認計算設定與收斂、標記一致性。
+
+結構生成建議先參考較完整的 [FeSe/VASP/ASE 教學](../FeSe/VASP/ASE/README.md)（strain、rattle、shear、Phonopy 位移），不必再把舊 Si 結構生成腳本整理成主要教學。這些 FeSe 腳本含有 FeSe／VASP 專用的超胞、輸入路徑與輸出解析邏輯，轉用 Si、QE 或 GPAW 時必須調整結構、軟體輸入及 energy／forces／stress 擷取；**不是能直接套用的通用資料生成器**。
 
 `test_smart.xyz` 在兩條流程中都是 validation set，不是完全獨立的 holdout test。要研究未知構型的泛化能力，仍應另準備未參與訓練、選模與調參的 test set。
 
