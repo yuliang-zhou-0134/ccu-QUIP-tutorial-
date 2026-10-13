@@ -29,6 +29,11 @@ nohup.out
 # Local model/experiment output paths are intentionally not broadly ignored:
 # document and review any trained GAP XML before adding to Git.
 
+# Si GAP source calculation files remain local; curated model/results live in Si/GAP.
+Si/train/
+Si/energy_only.py
+Si/GAP/run/
+
 # Reproducible U0J0 tutorial outputs (inputs and compact evidence stay tracked)
 FeSe/VASP/QUIP/U0J0_pretest/phonon/output*/
 FeSe/VASP/QUIP/U0J0_pretest/training/output/

@@ -1,0 +1,52 @@
+{
+  "model": {
+    "name": "GAP_Si_EnergyOnly.xml",
+    "sha256": "896a15de9fc0603abd1559f3eb39d6fa2d0832a7653b6393a7d99f7760fb3590",
+    "fit_type": "from-scratch GAP, energy-only supervision",
+    "sparse_files": [
+      {
+        "name": "GAP_Si_EnergyOnly.xml.sparseX.GAP_2026_10_13_480_9_48_18_3441",
+        "sha256": "394dd2d981d39e86645edb52ed277b20c9acfbdb9aec535223f2df634ef6790e"
+      },
+      {
+        "name": "GAP_Si_EnergyOnly.xml.sparseX.GAP_2026_10_13_480_9_48_18_3442",
+        "sha256": "f9012c92716fa399c1bb2a327c6548ed2af5815b9c17624222e75826feae497a"
+      }
+    ]
+  },
+  "reference_stress": {
+    "unit": "eV/A^3",
+    "sign": "ASE convention: positive is tensile",
+    "voigt_order": [
+      "xx",
+      "yy",
+      "zz",
+      "yz",
+      "xz",
+      "xy"
+    ],
+    "virial_conversion_if_needed": "stress = -virial / volume"
+  },
+  "datasets": {
+    "training": {
+      "dataset_type": "training",
+      "source_file": "train_smart.xyz",
+      "structures": 190,
+      "atoms": 12160,
+      "energy_rmse_meV_per_atom": 0.4195501272131076,
+      "force_rmse_eV_per_A": 0.2420866591438552,
+      "stress_rmse_eV_per_A3": 0.002201969040943966,
+      "stress_components": "ASE Voigt [xx, yy, zz, yz, xz, xy]"
+    },
+    "validation": {
+      "dataset_type": "validation",
+      "source_file": "test_smart.xyz",
+      "structures": 22,
+      "atoms": 1408,
+      "energy_rmse_meV_per_atom": 6.98422711162621,
+      "force_rmse_eV_per_A": 0.19724096202057437,
+      "stress_rmse_eV_per_A3": 0.006971129377477832,
+      "stress_components": "ASE Voigt [xx, yy, zz, yz, xz, xy]"
+    }
+  }
+}

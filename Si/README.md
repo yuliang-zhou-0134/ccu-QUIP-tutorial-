@@ -1,118 +1,39 @@
-# Si｜GAP 分子動力學、模型比較與 MACE 訓練
+# Si｜GAP、MACE、ASE 與 Phono3py 教學
 
-這個資料夾收錄矽（Si）的三個入門範例，另提供 `train_smart.xyz` 與 `test_smart.xyz` 作為 MACE 訓練與驗證資料。請先區分 **QUIP／GAP** 和 **MACE**：它們都是機器學習原子間位能框架，但模型格式、訓練方式與 ASE calculator 不相同。以下程式目前屬於可參考的研究腳本，**尚未像 FeSe U0J0 那樣提供完整模型與端到端重現驗證**。
+這個目錄使用同一組 Si extended-XYZ 資料，示範兩條不同的 MLIP 路線：從頭訓練的 **QUIP/GAP Energy-only**，以及以 foundation model 起步的 **MACE-MP Energy-only fine-tuning**。兩者的模型格式、calculator 與訓練背景不同，請勿交叉載入。
 
-## 檔案導覽
+## 建議學習順序
 
-| 檔案 | 用途 | 使用的模型 |
-| --- | --- | --- |
-| [MD.py](MD.py) | 從 Si 晶體執行 Langevin NVT 分子動力學 | GAP／QUIP |
-| [RMSE.py](RMSE.py) | 比較參考資料與 GAP 的能量、原子力及應力，繪製 parity plots | GAP／QUIP |
-| [MACE/](MACE/README.md) | 示範使用 MACE foundation model 微調 energy-only 模型 | MACE |
+1. 先用 ASE 讀取 `train_smart.xyz` 與 `test_smart.xyz`，理解結構、total energy、forces、stress labels。
+2. 依 [`GAP/README.md`](GAP/README.md) 產生只含 energy label 的 XYZ，閱讀 `gap_fit` 參數，載入已完成模型並重算 RMSE。
+3. 再閱讀 [`MACE/README.md`](MACE/README.md)，比較 foundation-model fine-tuning 與從頭訓練的差異。
+4. 用 [`check_datasets.py`](check_datasets.py) 檢查筆數、有限值與完全相同原子順序的重複幾何。
 
-## Si XYZ 資料與資料集劃分
+## 資料與目錄
 
-| 檔案 | 角色 | 用途 |
-| --- | --- | --- |
-| [train_smart.xyz](train_smart.xyz) | 訓練集 | MACE 的 `--train_file` |
-| [test_smart.xyz](test_smart.xyz) | **驗證集**（檔名雖為 test） | 目前 MACE 指令的 `--valid_file` |
-
-兩份都是 extended XYZ。已檢查到 `test_smart.xyz` 的資料欄位包含晶格、座標、`energy`、`forces` 和 `stress`；訓練集也應在執行前用 ASE 檢查標記與單位是否一致。MACE 範例將 forces／virials 的 loss 權重設為 0，因此訓練主要使用能量標記，**不代表檔案必須移除 forces／stress**。
-
-`test_smart.xyz` 目前被訓練指令用來監控驗證誤差及可能的模型選擇，**不能再把同一份資料稱為完全獨立的最終測試集**。若需要宣稱對未知 Si 結構的泛化能力，請另準備未參與訓練、early stopping 和調參的 holdout 資料。
-
-可以從 repository 根目錄執行下列唯讀檢查（需要 ASE、NumPy）：
-
-```bash
-python Si/check_datasets.py
-```
-
-這個腳本檢查 XYZ 是否可讀、能量是否有限，以及訓練／驗證集是否存在**相同原子順序的重複幾何**；它不是對旋轉、平移、原子排列或晶體對稱性都不變的完整去重工具。正式報告請記錄資料來源、DFT 設定、能量／力／應力單位與資料切分方法。
-
-## 1. GAP 分子動力學：MD.py
-
-**目的：** 學習以 ASE 建立晶體、用 GAP 計算原子力，並透過 Langevin thermostat 模擬有限溫度下的原子運動。
-
-目前腳本的設定：
-
-| 參數 | 設定 |
+| 路徑 | 內容 |
 | --- | --- |
-| 初始晶體 | Diamond Si，conventional lattice constant = 5.5063 Å |
-| 超胞 | 3×3×3 conventional cells（216 atoms） |
-| 溫度／系綜 | 300 K，Langevin NVT |
-| 時間步長 | 1 fs |
-| 步數 | 20,000（20 ps） |
-| 軌跡輸出 | `si_md_NVT.traj`，每 20 步儲存一次 |
+| `train_smart.xyz` | Training，190 個結構；含 energy、forces、stress |
+| `test_smart.xyz` | Validation，22 個結構；含 energy、forces、stress |
+| [`GAP/`](GAP/README.md) | Si GAP Energy-only 資料準備、訓練、模型與實算結果 |
+| [`MACE/`](MACE/README.md) | MACE-MP Energy-only fine-tuning、parity plots 與 Phono3py |
+| [`MD.py`](MD.py)、[`RMSE.py`](RMSE.py) | 舊 `GAP_Si_Final.xml` 範例，保留但不屬於新 Energy-only 模型 |
 
-**需要自行準備：** 能由 `quippy.potential.Potential` 載入的 `GAP_Si_Final.xml`，以及該 XML 引用的全部 SparseX（若有）。此模型**目前沒有隨 repository 一起提供**。
+`test_smart.xyz` 在兩條流程中都是 validation set，不是完全獨立的 holdout test。要研究未知構型的泛化能力，仍應另準備未參與訓練、選模與調參的 test set。
 
-在安裝好 ASE、NumPy 和 QUIP／quippy，並將模型放在執行目錄後，可從 `Si/` 執行：
+目前的有序幾何檢查沒有發現 Training–Validation 交集，但 Training 第 21 與 35 號 frame（從 0 起算）完全相同，所以 190 筆中只有 189 個不同的有序幾何。現有模型確實以 190 筆訓練；重新設計資料集時應先處理這個重複構型。
 
-```bash
-python MD.py
-```
+## 已完成的 Validation 結果
 
-程式會在目前工作目錄產生 `si_md_NVT.traj`，終端機列印每一步的位能、動能及瞬時溫度。首次使用時，可先在自己的副本減少 `N_STEPS`，確認模型、環境與輸出正常後再跑完整 20,000 步。
+| 模型 | 訓練背景 | Energy RMSE | Force RMSE | Stress RMSE |
+| --- | --- | ---: | ---: | ---: |
+| Si GAP Energy-only | 從頭訓練，只用本資料 energy | 6.98423 meV/atom | 0.197241 eV/Å | 0.006971 eV/Å³ |
+| MACE-MP Energy-only | foundation model fine-tuning | 3.10 meV/atom | 0.16228 eV/Å | 0.0022 eV/Å³ |
 
-**注意：** 這份腳本會直接執行較長的 MD 計算，並指定執行緒環境變數；請先核對共享伺服器的 CPU 規範。Langevin 的 `friction=0.02` 是 ASE 所採用的時間倒數單位設定，不能直接把程式內的註解「0.002 ps⁻¹」當成正確單位換算；正式研究前應再檢查其物理時間尺度。
+這張表不是純架構的公平競賽。GAP 從零開始；MACE-MP 已具有大型預訓練資料帶來的先驗知識，即使本次 fine-tuning 把 force／virial loss weight 設為 0，其 force／stress 預測仍可能受預訓練影響。兩者都以每結構 energy/atom、所有 force 笛卡兒分量、ASE stress 六個 Voigt 分量計算 RMSE。
 
-## 2. GAP 預測比較：RMSE.py
+## 新舊 GAP 的界線
 
-**目的：** 將 GAP 對同一批 Si 結構預測的能量、力與應力，和參考資料相比，計算 RMSE 並畫出 parity plot。
+新模型固定命名為 `GAP_Si_EnergyOnly.xml`，只收在 `Si/GAP/model/`；其 Training／Validation 結果只收在 `Si/GAP/results/`。舊 `GAP_Si_Final.xml` 流程使用 energy 加上 force／virial-stress 相關監督，不得稱為 Energy-only。本次保留既有 `MD.py`、舊 `RMSE.py`、MACE 與 FeSe 教材，不以新模型覆寫。
 
-需要自行準備：
-
-- `GAP_Si_Final.xml`（及其需要的 SparseX）。
-- `si_training_easy.xyz`，需包含原子結構及參考能量；若希望比較力或應力，還必須具備對應的參考 labels。
-- 可匯入的 ASE、NumPy、Matplotlib、quippy。
-
-從 `Si/` 執行：
-
-```bash
-python RMSE.py
-```
-
-原始腳本會輸出 `validation_plots_v3_high_res.png`，並顯示能量、力與應力的 RMSE。能量使用 **meV/atom**，力使用 **eV/Å**。
-
-**使用前請確認：**
-
-- 現有腳本假設可取得 *force labels*；**若 XYZ 僅有 energy labels，不能直接用它宣稱 force RMSE，程式也可能因找不到 forces 而停止。**
-- `virial` 與 `stress` 並非相同物理量；若來源只有 virial，需要核對正負號與體積換算，再與 GAP stress 比較，不能把原始 virial 直接當作 eV/Å³ 的應力。
-- 如果 `si_training_easy.xyz` 就是模型的訓練集，圖中 RMSE 為 **in-sample training error**，不是對未知構型的泛化精度。應另外使用未參與訓練的資料進行真正驗證。
-
-這份程式是**分析範例，尚未提供完整資料與實際執行的驗證結果**。如要改用 energy-only 資料，建議先只比較 energy，再視參考標記的可用性增加力／應力欄位。
-
-## 3. MACE-MP-0 energy-only 微調（已有驗證結果）
-
-[MACE 教學及原始 parity plots](MACE/README.md) 收錄已跑完的訓練／驗證分析、checkpoint SHA-256，以及 [重新評估程式](MACE/evaluate_parity.py)。
-
-| 評估集 | 結構數 | Energy RMSE (meV/atom) | Force RMSE (meV/Å) | Stress RMSE (eV/Å³) |
-| --- | ---: | ---: | ---: | ---: |
-| Training：train_smart.xyz | 190 | 2.07 | 153.90 | 0.0025 |
-| Validation：test_smart.xyz | 22 | 3.10 | 162.28 | 0.0022 |
-
-結果使用 float64、r_max=5 Å 的 MACE-MP-0 energy-only 微調 Stage Two（SWA）模型。Force／Stress 的損失權重為 0，但 foundation model 已經過預訓練；不能把 force 預測完全歸功於本次 Si 能量微調。RMSE 分別取每筆能量/原子、所有力笛卡兒分量、ASE stress 六個 Voigt 分量計算。
-
-目前的 test_smart.xyz 被指定為訓練過程的 validation file，**不是獨立的 holdout test**；建議再核對資料來源與幾何重複情況。
-
-`MP0指令` 使用 MACE-MP-0 float64；`沒有MP0` 檔名具有誤導性，它仍載入 float32 的預訓練 foundation model，並非從零訓練。兩個範例都不適用於直接載入 QUIP／GAP XML。
-
-## 4. Si 晶格熱導率：已完成的 Phono3py 示範
-
-同一份 MACE-MP-0 Stage Two checkpoint 已配合 Phono3py 計算 300 K q-mesh 敏感度、100–1000 K 熱導率曲線，結果與重現程式見 [MACE/README.md](MACE/README.md#晶格熱導率phono3py)。
-
-本例使用 MACE 弛豫後的 diamond Si conventional 晶格常數 5.474834 Å、2×2×2 conventional supercell（64 atoms）、0.03 Å 位移、Phono3py 單模 RTA（無 isotope／boundary scattering）。19³ q-mesh 下 300 K 的計算值約 166.725 W/(m·K)，15³ 與 19³ 約差 3.75%。**這是固定 fc2／fc3 下的網格敏感度檢查，尚非超晶胞、位移量或散射模型的完整收斂驗證。**
-
-## 5. Si GAP／QUIP 選做練習（不提供現成結果）
-
-現有 [MD.py](MD.py) 和 [RMSE.py](RMSE.py) 示範使用 quippy/ASE 載入 **GAP XML** 後執行 MD 或預測比較；但 repository **沒有** `GAP_Si_Final.xml`（及其 SparseX）與 `si_training_easy.xyz`，因此它們是**需要自行準備輸入的範例，不是可直接跑完的完整教學**。
-
-希望練習 Si GAP 訓練的讀者，可自行選擇合法可用的 Si 參考結構與 DFT labels、QUIP 描述符、訓練參數及評估切分，再用獨立資料評估。現有 [FeSe GAP 訓練教學](../FeSe/VASP/QUIP/U0J0_pretest/README.md) 可用來學習 `gap_fit` 的流程，但 FeSe 的元素參考能量與描述符參數**不能不經檢查就直接套用到 Si**。
-
-**這一部分是自由實作／選做題，不宣稱曾完成 Si GAP 的獨立驗證，也不附沒有可追溯來源的舊圖或 RMSE。** 若未來要比較 GAP 與 MACE，兩者必須使用一致的參考資料、評估指標及獨立的資料切分。
-
-## 下一步
-
-目前 MACE 訓練／驗證與 Phono3py 熱導率示範已有實際輸出；Si GAP／QUIP 則維持需自備模型與參考資料的選做題。若要比較兩種 MLIP 對未知構型的精度，仍需準備未參與訓練與調參的獨立 holdout；熱導率要提升至研究精度，還需超晶胞及散射模型的收斂檢查。
-
-如果想從完整資料與指令一步步操作，建議先學習已驗證的 [FeSe GAP → Phonopy 教學](../FeSe/VASP/QUIP/U0J0_pretest/README.md)。
+若想先看另一個完整 GAP → Phonopy 範例，可閱讀 [FeSe U0J0 教學](../FeSe/VASP/QUIP/U0J0_pretest/README.md)。
