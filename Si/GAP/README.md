@@ -19,9 +19,9 @@
 
 ## 參考資料的來源與適用範圍
 
-本教學使用 repository 已附的 `../train_smart.xyz` 與 `../test_smart.xyz`，不需要為了重現 GAP 訓練與 RMSE 而重新做 DFT。這 212 筆 Si 參考標記使用 **GPAW** 產生（依作者確認，亦符合先前計畫書記載）；但原始計算輸入與參數尚未保存於本 repository，因此仍無法由現有檔案核對泛函、cutoff、k-points、收斂條件或上游 stress convention。本頁 Stress RMSE 僅以目前 XYZ 的 ASE 應力定義進行一致評估。
+本教學使用 repository 已附的 `../train_smart.xyz` 與 `../test_smart.xyz`，不需要為了重現 GAP 訓練與 RMSE 而重新做 DFT。這 212 筆 Si 參考標記使用 **GPAW** 產生；但原始計算輸入與參數尚未保存於本 repository，因此仍無法由現有檔案核對泛函、cutoff、k-points、收斂條件或上游 stress convention。本頁 Stress RMSE 僅以目前 XYZ 的 ASE 應力定義進行一致評估。
 
-若要產生全新 Si 資料，可依研究需要使用 GPAW、VASP 或 Quantum ESPRESSO（QE），並自行驗證 DFT 收斂與標記一致性。對於要連接教授 **ghostGA** 的工作，VASP／QE 較容易與現有程式路線銜接，因為目前未提供 GPAW 介接；**這不是對 GPAW 準確度的負面評價**。**構型生成方法建議參考較完整的 [FeSe／ASE 範例](../../FeSe/VASP/ASE/README.md)**；其 `strain.py`、`rattle.py`、`shear.py` 和 `phonopy_disp.py` 可作為思路參考，但具有 FeSe／VASP 專用設定，不能直接當作 Si 或 QE 的即用程式。本教材不把舊 Si 結構生成腳本作為必要步驟.
+若要產生全新 Si 資料，可依研究需要使用 GPAW、VASP 或 Quantum ESPRESSO（QE），並自行驗證 DFT 收斂與標記一致性。對於要連接教授 **ghostGA** 的工作，VASP／QE 較容易與現有程式路線銜接，因為目前未提供 GPAW 介接；**這不是對 GPAW 準確度的負面評價**。**構型生成方法建議參考較完整的 [FeSe／ASE 範例](../../FeSe/VASP/ASE/README.md)**；其 `strain.py`、`rattle.py`、`shear.py` 和 `phonopy_disp.py` 可作為思路參考，但具有 FeSe／VASP 專用設定，不能直接當作 Si 或 QE 的即用程式。本教材不把舊 Si 結構生成腳本作為必要步驟。
 
 ## 目錄與環境
 

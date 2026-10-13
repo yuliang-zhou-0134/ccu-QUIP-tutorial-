@@ -51,7 +51,7 @@ python Si/MACE/evaluate_parity.py \
 ## 兩份原始訓練指令
 
 - [MP0指令](MP0指令)：載入 mace_mp.model，float64、200 epochs、SWA 150；本頁主要實驗。
-- [沒有MP0](沒有MP0)：名稱具有誤導性；仍指定 mace_mp_f32.model，因此也是 foundation-model fine-tuning，而非從頭訓練（float32、100 epochs）。
+- [MACE-MP-0 float32／100 epochs（Colab）](MACE_MP0_float32_100epochs_Colab.txt)：使用 `mace_mp_f32.model` 作為 foundation model 的 energy-only fine-tuning 指令（float32、100 epochs），**不是從頭訓練**；這是另一份參數範例，非本頁已驗證結果的主要訓練指令。
 
 這兩份是 Colab 指令，以 !python3 開頭；若在一般終端機執行請移除 !。模型與 XYZ 路徑是相對於執行目錄；原始資料在上一層 Si/，建議在 Si/ 執行或調整 --train_file 與 --valid_file。foundation model 的授權、版本及詳細安裝資訊見 [MACE 官方專案](https://github.com/ACEsuit/mace)。
 
