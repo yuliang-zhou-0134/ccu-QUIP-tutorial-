@@ -36,7 +36,12 @@ displacements = [
 # 建立 shear 資料夾
 # ==========================================================
 parent_dir = "shear"
-os.makedirs(parent_dir, exist_ok=True)
+# 避免重跑覆寫 shear/disp_*/ 下既有的 POSCAR、INCAR 與 DFT 結果。
+if os.path.lexists(parent_dir):
+    raise FileExistsError(
+        f"目標資料夾已存在：{parent_dir}/。請先選擇新的工作目錄，勿覆寫原始資料。"
+    )
+os.makedirs(parent_dir)
 
 print(f"\n已建立資料夾 {parent_dir}/")
 
@@ -83,8 +88,8 @@ for d in displacements:
     scf_dir = os.path.join(disp_dir, "scf")
     csc_dir = os.path.join(disp_dir, "csc")
 
-    os.makedirs(scf_dir, exist_ok=True)
-    os.makedirs(csc_dir, exist_ok=True)
+    os.makedirs(scf_dir)
+    os.makedirs(csc_dir)
 
     # ------------------------------------------------------
     # 寫入 POSCAR

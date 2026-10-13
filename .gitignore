@@ -6,6 +6,15 @@ __pycache__/
 venv/
 .DS_Store
 
+# Local credentials and licensed input files (not retroactive for tracked/history files)
+POTCAR
+.env
+.env.*
+*.pem
+*.key
+id_rsa
+id_ed25519
+
 # Common VASP scratch/large outputs (keep tracked files intact)
 WAVECAR
 CHGCAR

@@ -70,7 +70,7 @@ Phonopy 聲子色散、DOS、Cv、Entropy、Free Energy
 
 Si GAP 已收錄 XML、兩個必要 SparseX、資料準備與評估程式；MACE 的 checkpoint 權重尚未收錄，但已有 SHA-256 與重現說明。`Si/MD.py`、`Si/RMSE.py` 仍依賴**未收錄的舊版** `GAP_Si_Final.xml`，屬歷史參考，不是新 GAP 模型的可直接執行入口。
 
-本例的 212 筆 Si 參考資料使用 **GPAW**（依作者確認，亦與先前計畫書記載一致）；原始計算輸入尚未收錄，因此具體 DFT 參數仍待核對。若後續工作需要銜接教授的 **ghostGA**，選擇 VASP 或 Quantum ESPRESSO（QE）較方便，是因為現有 ghostGA 流程有對應路線、**未提供 GPAW 介接**，並不是 GPAW 的計算品質較差。新構型的生成方法可參考較完整的 [FeSe／ASE 腳本](FeSe/VASP/ASE/README.md)，但必須依 Si 結構、目標軟體與資料標記調整，**不可原封不動套用 FeSe 專用流程**。
+本例的 212 筆 Si 參考資料使用 **GPAW**；原始計算輸入尚未收錄，因此具體 DFT 參數仍待核對。若後續工作需要銜接教授的 **ghostGA**，選擇 VASP 或 Quantum ESPRESSO（QE）較方便，是因為現有 ghostGA 流程有對應路線、**未提供 GPAW 介接**，並不是 GPAW 的計算品質較差。新構型的生成方法可參考較完整的 [FeSe／ASE 腳本](FeSe/VASP/ASE/README.md)，但必須依 Si 結構、目標軟體與資料標記調整，**不可原封不動套用 FeSe 專用流程**。
 
 ## 環境與注意事項
 

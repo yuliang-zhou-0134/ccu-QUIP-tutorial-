@@ -29,58 +29,54 @@ def main():
     # 使用 np.round 避免浮點數產生如 0.0150000001 的誤差
     amplitudes = np.round(np.arange(0.005, 0.040, 0.005), 3)
 
-    task_counter = 1
-
-    print("開始生成位移結構與資料夾...")
-    
+    # 先建立全部位移構型的任務清單，確認沒有名稱衝突後才寫入。
+    # 這樣不會寫到一半才發現舊任務，意外覆寫原本的 SCF/CSC 結果。
+    planned_tasks = []
     for amp in amplitudes:
-        # 實例化 Phonopy
         phonon = Phonopy(unitcell, supercell_matrix)
-        
-        # 產生位移：is_plusminus=True 會同時產生 + 與 - 兩個方向的對稱位移
         phonon.generate_displacements(distance=amp, is_plusminus=True)
-        supercells = phonon.supercells_with_displacements
-        
-        for sc in supercells:
-            # 跳過沒有位移的完美超胞 (通常是列表中的 None 或是完全沒變的結構)
+        for sc in phonon.supercells_with_displacements:
             if sc is None:
                 continue
-            
-            # 建立 task 資料夾，例如 task_001_disp_0.005
-            task_dir = f"task_{task_counter:03d}_disp_{amp:.3f}"
-            os.makedirs(task_dir, exist_ok=True)
-            
-            # 將生成的超胞寫入 task 資料夾並命名為 POSCAR
-            task_poscar_path = os.path.join(task_dir, "POSCAR")
-            write_crystal_structure(task_poscar_path, sc, interface_mode='vasp')
-            
-            # 建立 scf 與 csc 子資料夾
-            scf_dir = os.path.join(task_dir, "scf")
-            csc_dir = os.path.join(task_dir, "csc")
-            os.makedirs(scf_dir, exist_ok=True)
-            os.makedirs(csc_dir, exist_ok=True)
-            
-            # (補充) 為了讓 VASP/gRISB 可以在 scf 與 csc 內順利執行，將 POSCAR 一併複製到子資料夾內
-            shutil.copy(task_poscar_path, os.path.join(scf_dir, "POSCAR"))
-            shutil.copy(task_poscar_path, os.path.join(csc_dir, "POSCAR"))
-            
-            # --- 處理 scf 資料夾 ---
-            if os.path.exists("INCAR_scf"):
-                shutil.copy("INCAR_scf", os.path.join(scf_dir, "INCAR"))
-            for f in scf_files:
-                if os.path.exists(f):
-                    shutil.copy(f, os.path.join(scf_dir, f))
-                    
-            # --- 處理 csc 資料夾 ---
-            if os.path.exists("INCAR_csc"):
-                shutil.copy("INCAR_csc", os.path.join(csc_dir, "INCAR"))
-            for f in csc_files:
-                if os.path.exists(f):
-                    shutil.copy(f, os.path.join(csc_dir, f))
-                    
-            task_counter += 1
+            task_dir = f"task_{len(planned_tasks) + 1:03d}_disp_{amp:.3f}"
+            planned_tasks.append((task_dir, sc))
 
-    print(f"✅ 腳本執行完畢！共生成了 {task_counter - 1} 個 task 資料夾。")
+    existing_tasks = [name for name, _ in planned_tasks if os.path.lexists(name)]
+    if existing_tasks:
+        raise FileExistsError(
+            f"已有 {len(existing_tasks)} 個目標任務（例如 {existing_tasks[0]}）；"
+            "請在新的工作目錄執行，以免覆寫已有的計算結果。"
+        )
+
+    print("開始生成位移結構與資料夾...")
+    for task_dir, sc in planned_tasks:
+        os.makedirs(task_dir)
+
+        # 將生成的超胞寫入 task 資料夾並命名為 POSCAR。
+        task_poscar_path = os.path.join(task_dir, "POSCAR")
+        write_crystal_structure(task_poscar_path, sc, interface_mode='vasp')
+
+        scf_dir = os.path.join(task_dir, "scf")
+        csc_dir = os.path.join(task_dir, "csc")
+        os.makedirs(scf_dir)
+        os.makedirs(csc_dir)
+
+        shutil.copy(task_poscar_path, os.path.join(scf_dir, "POSCAR"))
+        shutil.copy(task_poscar_path, os.path.join(csc_dir, "POSCAR"))
+
+        if os.path.exists("INCAR_scf"):
+            shutil.copy("INCAR_scf", os.path.join(scf_dir, "INCAR"))
+        for f in scf_files:
+            if os.path.exists(f):
+                shutil.copy(f, os.path.join(scf_dir, f))
+
+        if os.path.exists("INCAR_csc"):
+            shutil.copy("INCAR_csc", os.path.join(csc_dir, "INCAR"))
+        for f in csc_files:
+            if os.path.exists(f):
+                shutil.copy(f, os.path.join(csc_dir, f))
+
+    print(f"✅ 腳本執行完畢！共生成了 {len(planned_tasks)} 個 task 資料夾。")
 
 if __name__ == "__main__":
     main()

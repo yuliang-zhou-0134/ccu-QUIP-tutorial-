@@ -11,11 +11,21 @@ displacement_stdev = 0.01              # Rattle 微擾大小
 # 讀取原始結構
 atoms_origin = read(input_poscar, format='vasp')
 
-if not os.path.exists(base_dir):
-    os.makedirs(base_dir)
-
 # 設定要測試的應變比例 (+- 3%) for v2(v1 is strain +-2%)
 strains = [0.97 ,0.972 , 0.974, 0.976, 0.978, 1.022, 1.024, 1.026, 1.028, 1.03]
+
+# 在寫入任何檔案前，先檢查全部預定輸出，避免重跑覆寫 VASP 結果。
+task_names = [f"{kind}_{s:.3f}" for kind in ("vol_strain", "z_strain") for s in strains]
+existing_tasks = [
+    os.path.join(base_dir, name) for name in task_names
+    if os.path.lexists(os.path.join(base_dir, name))
+]
+if existing_tasks:
+    raise FileExistsError(
+        f"已有 {len(existing_tasks)} 個目標任務（例如 {existing_tasks[0]}）；"
+        "請換用新的輸出目錄，不要覆寫既有計算。"
+    )
+os.makedirs(base_dir, exist_ok=True)
 
 # ==========================================
 # 1. 生成體積應變 (Volumetric Strain)
@@ -24,7 +34,7 @@ print("開始生成 Volumetric Strain 結構...")
 for s in strains:
     folder_name = f"vol_strain_{s:.3f}"
     task_path = os.path.join(base_dir, folder_name)
-    os.makedirs(task_path, exist_ok=True)
+    os.makedirs(task_path)
     
     atoms = atoms_origin.copy()
     
@@ -48,7 +58,7 @@ print("開始生成 Z-Strain 結構...")
 for s in strains:
     folder_name = f"z_strain_{s:.3f}"
     task_path = os.path.join(base_dir, folder_name)
-    os.makedirs(task_path, exist_ok=True)
+    os.makedirs(task_path)
     
     atoms = atoms_origin.copy()
     

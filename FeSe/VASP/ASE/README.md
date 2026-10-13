@@ -18,6 +18,14 @@
 3. 整理為 extended XYZ，檢查元素順序、晶格、單位與每一筆 energy。
 4. 再交由 QUIP/GAP 訓練及後續 Phonopy 分析。
 
+## 輸出安全與歷史設定
+
+為避免重新執行覆寫既有的 DFT 工作目錄，`strain.py`、`rattle.py`、`shear.py` 與 `phonopy_disp.py` 會在寫入前檢查預定輸出：發現重複任務時停止，並提示改用新的工作目錄。`shear.py` 要求執行目錄內尚未有 `shear/`。若只是想重新生成結構，請在全新的工作目錄操作，**不要刪除或覆寫舊的 SCF／CSC 計算結果**。
+
+`create_xyz.py` 也會拒絕覆寫已存在的輸出檔，且 SCF／CSC 輸出路徑不可相同；重做資料擷取時請指定新的 `--csc-out`、`--scf-out` 名稱。這些輸出安全檢查不會改變物理計算設定或訓練資料。
+
+這些仍是**需配合實驗室環境調整的舊研究腳本**：`phonopy_disp.py` 若缺少 VASP／ghostGA 設定檔會列出警告，但仍可用於產生位移結構；若要真正提交 DFT+ghostGA 工作，請先補齊並核對教授提供的最新 `INCAR`、`plo.cfg`、`main.py` 與其他必要檔案。
+
 ## rattle 亂數種子與測試
 
 舊版 `rattle.py` 每次呼叫 `atoms.rattle(stdev=...)` 都使用 ASE 預設的固定 seed，導致同一初始結構的每個 task 得到相同的 POSCAR。新版以 `base_seed=42` 為起點，每個 task 分別使用 `42, 43, …, 91`，讓 50 筆結構相異且整批可重現。

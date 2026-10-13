@@ -192,10 +192,25 @@ def main():
     calc_dirs = find_calc_dirs(base)
     print(f"\n共找到 {len(calc_dirs)} 個計算資料夾 (含 scf/csc)\n")
 
+    # 在開檔前先檢查：不允許兩個輸出指向同一位置，也不覆寫已有 XYZ。
+    out_csc = Path(args.csc_out)
+    out_scf = Path(args.scf_out)
+    if out_csc.resolve() == out_scf.resolve():
+        raise ValueError("CSC 與 SCF 輸出路徑不能相同")
+    existing_outputs = [
+        str(path) for path in (out_csc, out_scf)
+        if path.exists() or path.is_symlink()
+    ]
+    if existing_outputs:
+        raise FileExistsError(
+            "輸出檔案已存在，為避免覆寫請指定新檔名：" + ", ".join(existing_outputs)
+        )
+
     n_success = 0
     n_fail = 0
 
-    with open(args.csc_out, "w") as csc_f, open(args.scf_out, "w") as scf_f:
+    # x 為 exclusive create；即使預檢後路徑被其他程序建立，也不會覆寫。
+    with open(out_csc, "x") as csc_f, open(out_scf, "x") as scf_f:
         for d in calc_dirs:
             csc_dir = d / "csc"
             scf_dir = d / "scf"

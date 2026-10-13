@@ -24,6 +24,15 @@ print("--- 開始進行全晶胞弛豫 ---")
 relax_target = "POSCAR" 
 
 if os.path.exists(relax_target):
+    # 舊研究腳本預設不覆寫已保存的結構、軌跡與最佳化紀錄。
+    existing_outputs = [
+        name for name in ("CONTCAR", "opt.traj", "opt.log") if os.path.lexists(name)
+    ]
+    if existing_outputs:
+        raise FileExistsError(
+            "已有弛豫輸出：" + ", ".join(existing_outputs)
+            + "；請換用新的工作目錄，避免覆寫既有計算。"
+        )
     atoms = read(relax_target, format="vasp")
     atoms.calc = pot
 
